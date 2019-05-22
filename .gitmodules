@@ -1,0 +1,6 @@
+[submodule "QuestieDev"]
+	path = QuestieDev
+	url = https://github.com/AeroScripts/QuestieDev.git
+[submodule "ItemPriceTooltip_Classic"]
+	path = ItemPriceTooltip_Classic
+	url = https://github.com/EsreverWoW/ItemPriceTooltip_Classic
