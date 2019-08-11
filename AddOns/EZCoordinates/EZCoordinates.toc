@@ -1,0 +1,10 @@
+﻿## Interface: 11302
+## Title: |cFF0dea38EZ|r Coordinates
+## Author: thisbarker
+## SavedVariables: EZCoordinates_SavedVars
+## Notes: Displays player coordinates
+## Version: 0.0.4
+
+Config.xml
+MinimapCoordinates.xml
+WorldMapFrameCoordinates.xml
