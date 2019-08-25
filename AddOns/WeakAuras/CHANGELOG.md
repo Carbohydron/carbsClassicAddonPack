@@ -1,14 +1,20 @@
-# [2.13.4](https://github.com/WeakAuras/WeakAuras2/tree/2.13.4) (2019-07-07)
+# [2.14.2](https://github.com/WeakAuras/WeakAuras2/tree/2.14.2) (2019-08-25)
 
-[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.13.3...2.13.4)
+[Full Changelog](https://github.com/WeakAuras/WeakAuras2/compare/2.14.1...2.14.2)
 
 ## Highlights
 
- Bug fix for corrupted custom options 
+ - A few more bug fixes to light up your day 
 
 ## Commits
 
-emptyrivers (1):
+InfusOnWoW (3):
 
-- delete corrupted custom options (#1435)
+- Fix drawLayer calculation
+- Fix conversion not stopping custom text updates
+- Fix conversion of Form/Stance/Trigger in a edge case
+
+mrbuds (1):
+
+- dynamic group custom sort: improve error message when custom grow function return bad data  fix #1598
 

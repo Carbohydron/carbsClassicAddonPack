@@ -1,6 +1,6 @@
 ﻿## Interface: 11302
 ## Author: Lag
-## Version: v1.1.5-beta
+## Version: v1.1.6-beta
 ## Dependencies: AtlasLootClassic
 ## LoadOnDemand: 1
 
@@ -12,7 +12,7 @@
 ## Title-itIT: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
 ## Title-koKR: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
 ## Title-ptBR: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
-## Title-ruRU: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
+## Title-ruRU: AtlasLootClassic |cFF0099FF[Подземелья и Рейды]|r
 ## Title-zhCN: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
 ## Title-zhTW: AtlasLootClassic |cFF0099FF[Dungeons and Raids]|r
 ## Notes: AtlasLoot loot tables from Dungeons and Raids
@@ -23,7 +23,7 @@
 ## Notes-itIT: AtlasLoot loot tables from Dungeons and Raids
 ## Notes-koKR: AtlasLoot loot tables from Dungeons and Raids
 ## Notes-ptBR: AtlasLoot loot tables from Dungeons and Raids
-## Notes-ruRU: AtlasLoot loot tables from Dungeons and Raids
+## Notes-ruRU: Таблицы добычи AtlasLoot от Подземелий и Рейдов
 ## Notes-zhCN: AtlasLoot 地下城&团队副本掉落列表
 ## Notes-zhTW: AtlasLoot loot tables from Dungeons and Raids
 

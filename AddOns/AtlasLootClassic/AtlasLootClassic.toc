@@ -1,8 +1,10 @@
 ﻿## Interface: 11302
 ## Author: Lag
-## Version: v1.1.5-beta
+## Version: v1.1.6-beta
 ## SavedVariables: AtlasLootClassicDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDBIcon-1.0, LibDataBroker-1.1, LibClassicItemSets-1.0
+## DefaultState: Enabled
+## LoadOnDemand: 0
 
 ## Title: AtlasLootClassic |cFF22B14C[Core]|r
 ## Notes: Shows the possible loot from the bosses
@@ -14,7 +16,7 @@
 ## Title-itIT: AtlasLoot Classic |cFF22B14C[Core]|r
 ## Title-koKR: AtlasLoot Classic |cFF22B14C[Core]|r
 ## Title-ptBR: AtlasLoot Classic |cFF22B14C[Core]|r
-## Title-ruRU: AtlasLoot Classic |cFF22B14C[Core]|r
+## Title-ruRU: AtlasLoot Classic |cFF22B14C[Ядро]|r
 ## Title-zhCN: AtlasLoot Classic |cFF22B14C[Core]|r
 ## Title-zhTW: AtlasLoot Classic |cFF22B14C[Core]|r
 ## Notes-deDE: Shows the possible loot from the bosses
@@ -24,7 +26,7 @@
 ## Notes-itIT: Shows the possible loot from the bosses
 ## Notes-koKR: Shows the possible loot from the bosses
 ## Notes-ptBR: Shows the possible loot from the bosses
-## Notes-ruRU: Shows the possible loot from the bosses
+## Notes-ruRU: Показывает возможную добычу с боссов
 ## Notes-zhCN: 显示首领可能的掉落物品
 ## Notes-zhTW: Shows the possible loot from the bosses
 
@@ -94,3 +96,4 @@ GUI\SoundFrame.lua
 Addons\Addons.lua
 Addons\Favourites.lua
 Addons\Favourites_GUI.lua
+#Addons\Reagents.lua
