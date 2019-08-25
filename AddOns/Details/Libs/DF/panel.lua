@@ -5415,7 +5415,7 @@ DF.HeaderCoreFunctions = {
 		local headerFrame = self.HeadersCreated [nextHeader]
 		
 		if (not headerFrame) then
-			local newHeader = CreateFrame ("frame", "$parentHeaderIndex" .. nextHeader, self)
+			local newHeader = CreateFrame ("button", "$parentHeaderIndex" .. nextHeader, self)
 			
 			DF:CreateImage (newHeader, "", self.options.header_height, self.options.header_height, "ARTWORK", nil, "Icon", "$parentIcon")
 			DF:CreateImage (newHeader, "", 1, 1, "ARTWORK", nil, "Separator", "$parentSeparator")
@@ -5680,13 +5680,17 @@ local default_load_conditions_frame_options = {
 function DF:CreateLoadFilterParser (callback)
 	local f = CreateFrame ("frame")
 	f:RegisterEvent ("PLAYER_ENTERING_WORLD")
-	f:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
-	f:RegisterEvent ("PLAYER_TALENT_UPDATE")
-	f:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
 	f:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
-	f:RegisterEvent ("CHALLENGE_MODE_START")
 	f:RegisterEvent ("ENCOUNTER_START")
 	f:RegisterEvent ("PLAYER_REGEN_ENABLED")
+	
+	--events not existant in classic
+	if (not DF.IsClassicWow()) then
+		f:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
+		f:RegisterEvent ("PLAYER_TALENT_UPDATE")
+		f:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
+		f:RegisterEvent ("CHALLENGE_MODE_START")
+	end
 	
 	f:SetScript ("OnEvent", function (self, event, ...)
 		if (event == "ENCOUNTER_START") then

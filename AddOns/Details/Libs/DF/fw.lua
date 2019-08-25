@@ -1,5 +1,5 @@
 
-local dversion = 152
+local dversion = 153
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -39,6 +39,7 @@ if (not PixelUtil) then
 end
 
 function DF.IsClassicWow()
+	--WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 	local gameVersion = GetBuildInfo()
 	if (gameVersion:match ("%d") == "1") then
 		return true

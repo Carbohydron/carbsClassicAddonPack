@@ -15,7 +15,11 @@ local _type = type
 --api locals
 local _CreateFrame = CreateFrame
 local _GetTime = GetTime
-local _GetSpellInfo = _detalhes.getspellinfo
+
+local GetSpellInfo = Details.GetSpellInfoC
+local _GetSpellInfo = Details.GetSpellInfoC
+
+
 local _GetCursorPosition = GetCursorPosition
 local _unpack = unpack
 

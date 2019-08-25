@@ -16,7 +16,11 @@ local _bit_band = bit.band
 local _unpack = unpack
 local _type = type
 --api locals
-local _GetSpellInfo = _detalhes.getspellinfo
+
+local GetSpellInfo = Details.GetSpellInfoC
+local _GetSpellInfo = Details.GetSpellInfoC
+
+
 local GameTooltip = GameTooltip
 local _IsInRaid = IsInRaid
 local _IsInGroup = IsInGroup

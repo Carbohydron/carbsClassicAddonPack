@@ -190,12 +190,12 @@ do
 		for i = #_detalhes.savedCustomSpells, 1, -1 do
 			local spelltable = _detalhes.savedCustomSpells [i]
 			local spellid = spelltable [1]
-			if (spellid > 10) then
+			
 				local exists = _GetSpellInfo (spellid)
 				if (not exists) then
 					tremove (_detalhes.savedCustomSpells, i)
 				end
-			end
+			
 		end
 	end
 	
