@@ -1,0 +1,9 @@
+## Interface: 80200
+## Title: HealBot Tooltips
+## Author: Strife
+## Notes: HealBot Tooltips, only loads if Tooltips are used
+## RequiredDeps: HealBot
+## LoadOnDemand: 1
+## Version: 8.2.0.3
+
+HealBot_Tooltip.lua
