@@ -1,13 +1,8 @@
 ------------------------------------------------------------------------
-r1486 | Resike | 2019-08-27 12:59:16 +0000 (Tue, 27 Aug 2019) | 3 lines
+r1489 | Resike | 2019-08-27 23:49:43 +0000 (Tue, 27 Aug 2019) | 1 line
 Changed paths:
-   M /trunk/GUI_Config.lua
-   M /trunk/GUI_Main.lua
-   M /trunk/Recount.lua
-   M /trunk/deletion.lua
+   M /trunk/Recount.toc
 
-- WoW Classic support
-- Various anchoring fixes
-- Some other smaller fixes
+- TOC fix
 ------------------------------------------------------------------------
 
