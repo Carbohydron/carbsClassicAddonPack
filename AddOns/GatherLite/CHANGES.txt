@@ -1,0 +1,12 @@
+lightweight tag bde649af8814e6e87ea830e2a162585d8eb815cc 1.0.21-classic
+Author:	Wuild <wuildz@gmail.com>
+Date:	Wed Aug 28 15:54:53 2019 +0200
+
+commit bde649af8814e6e87ea830e2a162585d8eb815cc
+Author: Wuild <wuildz@gmail.com>
+Date:   Wed Aug 28 15:54:53 2019 +0200
+
+    minimap update
+    
+    minimap nodes now auto hides when closer then 70 yards.
+
