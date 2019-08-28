@@ -51,127 +51,138 @@ Prat:AddModuleToLoad(function()
   do
       local L
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "enUS", L)
 
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "itIT", L)
 
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "ptBR", L)
 
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "frFR", L)
 
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "deDE", L)
 
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "koKR",  L)
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "esMX",  L)
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		["module_desc"] = "Показывает подсказку при наведении курсора на ссылку в чате",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "ruRU",  L)
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "zhCN",  L)
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "esES",  L)
 
-  L=
-{
+  
+  L = {
 	["HoverTips"] = {
 		--[[Translation missing --]]
-		--[[ ["module_desc"] = "",--]] 
+		["module_desc"] = "Shows tooltip when hovering over link in chat",
 		--[[Translation missing --]]
-		--[[ ["module_name"] = "",--]] 
+		["module_name"] = "Hover Tips",
 	}
 }
+
   PL:AddLocale(PRAT_MODULE, "zhTW",  L)
   end
   --@end-non-debug@

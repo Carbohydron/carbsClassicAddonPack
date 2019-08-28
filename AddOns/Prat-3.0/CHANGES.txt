@@ -1,7 +1,0 @@
-changeset:   1202:dfa99dc0ad04
-tag:         3.7.24
-user:        sylvanaar <sylvanaar@mindspring.com>
-date:        Sat Aug 10 05:46:42 2019 -0700
-summary:     Fix errors on startup on Classic
-
-
