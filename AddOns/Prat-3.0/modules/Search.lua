@@ -77,7 +77,7 @@ Usage:
 L = {
 	["Search"] = {
 		["err_notfound"] = "Nicht gefunden",
-		["err_tooshort"] = "Suchbegriff zu kurz",
+		["err_tooshort"] = "Suchbegriff ist zu kurz",
 		["find_results"] = "Gefundene Ergebnisse:",
 		["module_desc"] = [=[Aktiviert die Suchfunktion in Chatfenstern.
 
@@ -91,7 +91,7 @@ Benutzung:
 /findall <text>
 
 Suche]=],
-		["module_name"] = "Suchen",
+		["module_name"] = "Suche",
 	}
 }
 

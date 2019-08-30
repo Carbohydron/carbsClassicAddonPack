@@ -1,4 +1,11 @@
-if select(4, GetBuildInfo()) ~= 11302 then error("PitBull4: Wrong game version.") end
+
+-- Twitch client dun fucked up
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	C_Timer.After(7, function()
+		print("You are using the WoW Classic version of PitBull4. Reinstall the retail version of PitBull4 and relaunch WoW. If you use the Twitch client, exit out and reopen it to make sure you have the latest version.")
+	end)
+	return
+end
 
 -- Constants ----------------------------------------------------------------
 local _G = _G
@@ -291,7 +298,7 @@ _G.PitBull4 = PitBull4
 local DEBUG = PitBull4.DEBUG
 local expect = PitBull4.expect
 
-PitBull4.version = "v4.1.20-classic2"
+PitBull4.version = "v4.1.20-classic3"
 if PitBull4.version:match("@") then
 	PitBull4.version = "Development"
 end

@@ -6,7 +6,7 @@
 ## Author: ckknight, Shekfi, Nebula
 ## SavedVariables: PitBull4DB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDBIcon-1.0, Clique, RealMobHealth, LibClassicDurations
-## Version: v4.1.20-classic2
+## Version: v4.1.20-classic3
 
 ## X-Curse-Project-ID: 7522
 ## X-WoWI-ID: 25020

@@ -95,15 +95,11 @@ Prat:AddModuleToLoad(function()
   L = {
 	["Invites"] = {
 		["Enable Alt-Invite"] = "Aktiviere Alt-Einladen",
-		["Enable Invite Links"] = "Aktiviere Einladungs Links",
-		--[[Translation missing --]]
-		["module_desc"] = "Options for easy inviting of players to groups",
-		--[[Translation missing --]]
-		["module_name"] = "Invites",
-		--[[Translation missing --]]
-		["Toggle group invites by alt-clicking hyperlinked keywords like 'invite'."] = "Toggle group invites by alt-clicking hyperlinked keywords like 'invite'.",
-		--[[Translation missing --]]
-		["Toggle group invites by alt-clicking on player name."] = "Toggle group invites by alt-clicking on player name.",
+		["Enable Invite Links"] = "Aktiviere Einladungs-Links",
+		["module_desc"] = "Optionen zum einfachen Einladen von Spielern für Gruppen",
+		["module_name"] = "Einladungen",
+		["Toggle group invites by alt-clicking hyperlinked keywords like 'invite'."] = "Zum Umschalten der Gruppeneinladungen, klicke bei gedrückter Alt-Taste auf Hyperlink-Schlüsselwörter wie \"einladen\".",
+		["Toggle group invites by alt-clicking on player name."] = "Zum Umschalten der Gruppeneinladungen, klicke bei gedrückter Alt-Taste auf den Spielernamen.",
 	}
 }
 

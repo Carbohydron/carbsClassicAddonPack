@@ -2,10 +2,6 @@ local ADDON_NAME = ...;
 local DEFAULT_SAVED_VARS = { ShowPreciseValues = false };
 local SAVED_VARS_VERSION = 1;
 
-ConfigFrameOptions = {
-	showPreciseValues = {  },
-}
-
 function ConfigFrame_OnLoad(frame)
 	frame.name = "EZ Coordinates";
 
@@ -29,7 +25,7 @@ function ConfigFrame_OnEvent(frame, event, ...)
 			
 			frame.savedVars = EZCoordinates_SavedVars;
 
-			ConfigFrameShowPreciseValues:SetChecked(frame.savedVars.ShowPreciseValues);
+			EZJunkConfigFrameShowPreciseValues:SetChecked(frame.savedVars.ShowPreciseValues);
 		end
 	end
 end
@@ -40,4 +36,15 @@ end
 
 function ShowPreciseValuesButton_OnClick(checkButton)
 	EZCoordinates_SavedVars.ShowPreciseValues = checkButton:GetChecked();
+end
+
+SLASH_EZCoordinates1 = "/ezcoordinates";
+SLASH_EZCoordinates2 = "/ezc";
+SlashCmdList["EZCoordinates"] = function(option)
+	local comparableOption = string.lower(option);
+	
+	if (comparableOption == "") then
+		InterfaceOptionsFrame_OpenToCategory("EZ Coordinates");
+		InterfaceOptionsFrame_OpenToCategory("EZ Coordinates");
+	end
 end

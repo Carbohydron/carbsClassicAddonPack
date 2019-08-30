@@ -1,38 +1,18 @@
-local updateInterval = (1 / 30);
-local playerPosition;
+-- Constant
+local updateInterval = (1 / 30); -- used to only update the UI every 1/30 ticks. Preventing useless CPU cycles.
+
+-- Updated every OnUpdate
 local lastUpdate = 0;
-local isAnyBGActive = false;
+
+-- Updated every updateInterval, to automatically change display text after a user has changed the value
 local showPreciseValues = false;
 
+-- Conditionally updated when it actually has changed
+local lastPlayerPosition;
+
 function MinimapCoordinates_OnUpdate(self, elapsed)
-	local maxBattlefieldId = GetMaxBattlefieldID();
-	local isBGActive = false;
-
-	for i=1, maxBattlefieldId do
-		local status = GetBattlefieldStatus(i);
-
-		if (status == "active") then
-			isBGActive = true
-			break;
-		end
-	end
-
-	isAnyBGActive = isBGActive;
-
-	if (isAnyBGActive) then
-		LocationManagerDisplay:Hide();
-	else
-		LocationManagerDisplay:Show();
-	end
-
-	if (not isAnyBGActive and lastUpdate >= updateInterval) then
-		local currentPlayerPosition = MinimapCoordinates_GetPlayerLocation();
-		
-		if (currentPlayerPosition ~= nil and (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues or not playerPosition or currentPlayerPosition.Map ~= playerPosition.Map or currentPlayerPosition.X ~= playerPosition.X or currentPlayerPosition.Y ~= playerPosition.Y)) then
-			playerPosition = currentPlayerPosition;
-			
-			MinimapCoordinates_Update();
-		end
+	if (lastUpdate >= updateInterval) then
+		MinimapCoordinates_UpdatePlayerPosition();
 
 		lastUpdate = 0;
 		showPreciseValues = EZCoordinates_SavedVars.ShowPreciseValues;
@@ -41,38 +21,27 @@ function MinimapCoordinates_OnUpdate(self, elapsed)
 	end
 end
 
-function MinimapCoordinates_GetPlayerLocation()
-	local map = C_Map.GetBestMapForUnit("player");
-	local position = C_Map.GetPlayerMapPosition(map, "player");
+function MinimapCoordinates_UpdatePlayerPosition()
+	local currentPlayerPosition = LocationManager_GetPlayerLocation();
+	local shouldUpdatePlayerPosition = false;
 
-	if (position == nil) then
-		return nil;
+	if (currentPlayerPosition == nil and lastPlayerPosition == nil) then
+		-- No need to update
+	elseif (currentPlayerPosition == nil and lastPlayerPosition ~= nil) then
+		shouldUpdatePlayerPosition = true;
+	elseif (currentPlayerPosition ~= nil and lastPlayerPosition == nil) then
+		shouldUpdatePlayerPosition = true;
+	elseif (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues) then
+		shouldUpdatePlayerPosition = true;
+	elseif (lastPlayerPosition.Map ~= currentPlayerPosition.Map or lastPlayerPosition.X ~= currentPlayerPosition.X or lastPlayerPosition.Y ~= currentPlayerPosition.Y) then
+		shouldUpdatePlayerPosition = true;
 	end
-
-	return {
-		Map = map,
-		X = position.x,
-		Y = position.y,
-	}
-end
-
-function MinimapCoordinates_Update()
-	local positionText = LocationManager_GetPositionText(playerPosition);
 	
-	LocationManagerDisplay:SetText(positionText);
-end
+	if (shouldUpdatePlayerPosition) then
+		lastPlayerPosition = currentPlayerPosition;
 
-function LocationManager_GetPositionText(position)
-	local x = position.X and position.X or 0;
-	local y = position.Y and position.Y or 0;
-	
-	local formatString = "%d, %d";
-
-	if (EZCoordinates_SavedVars.ShowPreciseValues) then
-		formatString = "%0.2f,%0.2f";
+		local positionText = LocationManager_GetPositionText(lastPlayerPosition);
+		
+		LocationManagerDisplay:SetText(positionText);
 	end
-
-	local positionText = format("(" .. formatString .. ")", x * 100, y * 100);
-
-	return positionText;
 end
