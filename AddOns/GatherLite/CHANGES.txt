@@ -1,13 +1,10 @@
-lightweight tag 9e9cba302ca8f14c4c19db347bcae3e317335f3a 1.0.25-classic
+lightweight tag 5dbe27e8d9716e91c83a5aac3f38817fa4f51221 1.0.32-classic
 Author:	Wuild <wuildz@gmail.com>
-Date:	Fri Aug 30 00:08:36 2019 +0200
+Date:	Fri Aug 30 17:14:29 2019 +0200
 
-commit 9e9cba302ca8f14c4c19db347bcae3e317335f3a
+commit 5dbe27e8d9716e91c83a5aac3f38817fa4f51221
 Author: Wuild <wuildz@gmail.com>
-Date:   Fri Aug 30 00:08:36 2019 +0200
+Date:   Fri Aug 30 17:14:29 2019 +0200
 
-    bugs and stuff
-    
-    Memory issue with hiding nodes fixed.
-    Now world map nodes are only rendered when the map is shown and removed when closed.
+    nodes on world, minimap edge
 

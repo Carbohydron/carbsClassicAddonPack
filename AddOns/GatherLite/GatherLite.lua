@@ -14,7 +14,7 @@ local function IsRetail()
 end
 
 GatherLite.name = name;
-GatherLite.version = "1.0.25-classic";
+GatherLite.version = "1.0.32-classic";
 GatherLite.isClassic = IsClassic();
 GatherLite.isRetail = IsRetail();
 
@@ -112,7 +112,8 @@ GatherLite.defaultConfigs = {
     minimapOpacity = 1,
     worldmapOpacity = 1,
     minimapLoot = true,
-    worldmapLoot = true
+    worldmapLoot = true,
+    minimapEdge = false
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -241,7 +242,7 @@ GatherLite.debug = function(...)
 end
 
 SLASH_GATHER1 = '/GATHER'
-SLASH_GATHER2 = '/GATHERER'
+SLASH_GATHER2 = '/GATHERLITE'
 SlashCmdList['GATHER'] = function(msg)
     if msg == 'reload' then
         GatherLite.print("Reloading map");
@@ -255,9 +256,6 @@ SlashCmdList['GATHER'] = function(msg)
     elseif msg == "reset" then
         GatherLiteGlobalSettings.database = {};
         GatherLite.needMapUpdate = true
-    elseif msg == "test" then
-        local x, y, mapID = HBD:GetPlayerZonePosition();
-        print(x, y, mapID);
     end
 end
 
@@ -433,54 +431,44 @@ function leadingZeros(value)
     return value;
 end
 
-GatherLite.spawnMarker = function(node, minimap)
-    local f = CreateFrame('Button', nil, WorldMapFrame.ScrollContainer.Child);
-    local x, y, mapID = HBD:GetWorldCoordinatesFromZone(node.position.x, node.position.y, node.position.mapID);
-    f:SetPoint("TOPLEFT", x, (y * -1))
+GatherLite.frames = {};
+GatherLite.minimapFrames = {};
 
-    if minimap then
-        f:SetSize(GatherLiteConfigCharacter.minimapIconSize, GatherLiteConfigCharacter.minimapIconSize)
-    else
-        f:SetSize(GatherLiteConfigCharacter.worldmapIconSize, GatherLiteConfigCharacter.worldmapIconSize)
-    end;
+GatherLite.createWorldmapNode = function(node, ik)
+    local f
+    if (GatherLite.frames[node.type .. ik] == nil) then
+        GatherLite.frames[node.type .. ik] = CreateFrame('Button', "GatherLite.Worldmap." .. ik, WorldMapFrame.ScrollContainer.Child)
+    end
+    f = GatherLite.frames[node.type .. ik];
+    f:SetSize(GatherLiteConfigCharacter.worldmapIconSize, GatherLiteConfigCharacter.worldmapIconSize)
     f:SetFrameLevel(1)
     f:SetFrameStrata("HIGH")
     f:EnableKeyboard(true)
     f:SetPropagateKeyboardInput(true)
     f:SetHighlightTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight");
-
-    if minimap then
-        f:SetAlpha(GatherLiteConfigCharacter.minimapOpacity);
-        table.insert(GatherLite.nodes.minimap, { frame = f, x = x, y = y })
-    else
-        f:SetAlpha(GatherLiteConfigCharacter.worldmapOpacity);
-        table.insert(GatherLite.nodes.worldmap, { frame = f, x = x, y = y })
-    end;
-
-    GetPlayerInfoByGUID(node.GUID);
+    f:SetAlpha(GatherLiteConfigCharacter.worldmapOpacity);
+    f.texture = f:CreateTexture(nil, 'ARTWORK')
+    f.texture:SetAllPoints(f)
+    f.texture:SetTexture(node.icon)
+    GetPlayerInfoByGUID(node.GUID)
     f:SetScript('OnEnter', function()
+
+        if (f:GetAlpha() == 0) then
+            return
+        end
 
         local locClass, engClass, locRace, engRace, gender, name = GetPlayerInfoByGUID(node.GUID);
         local classColor = GatherLite.classColours[engClass];
         local addLoot = false;
 
-        if node.loot and minimap and GatherLiteConfigCharacter.minimapLoot then
-            addLoot = true;
-        end
-
-        if node.loot and not minimap and GatherLiteConfigCharacter.worldmapLoot then
+        if node.loot and GatherLiteConfigCharacter.worldmapLoot then
             addLoot = true;
         end
 
         f:SetAlpha(1);
         GatherLite.tooltip:ClearLines();
-        if minimap then
-            GatherLite.tooltip:SetOwner(f, "ANCHOR_CURSOR");
-            table.insert(GatherLite.nodes.minimap, { frame = f, x = x, y = y });
-        else
-            GatherLite.tooltip:SetOwner(f, "ANCHOR_TOPLEFT");
-            table.insert(GatherLite.nodes.worldmap, { frame = f, x = x, y = y });
-        end;
+
+        GatherLite.tooltip:SetOwner(f, "ANCHOR_CURSOR");
 
         GatherLite.tooltip:SetText(node.name);
         GatherLite.tooltip:AddDoubleLine("Last visit:", "|cffffffff" .. leadingZeros(node.date.day) .. '/' .. leadingZeros(node.date.month) .. '/' .. leadingZeros(node.date.year) .. " - " .. leadingZeros(node.date.hour) .. ':' .. leadingZeros(node.date.min) .. ':' .. leadingZeros(node.date.sec) .. "|r");
@@ -488,15 +476,6 @@ GatherLite.spawnMarker = function(node, minimap)
         if addLoot then
             for k, item in pairs(node.loot) do
                 GatherLite.tooltip:AddDoubleLine(k, "x" .. item.count);
-
-
-
-                --                if (GetItemInfo(k)) then
-                --                    --                    GatherLite.tooltip:AddTexture(GetItemIcon(k), { width = 14, height = 14 })
-                --                elseif GetCurrencyInfo(k) then
-                --                    local cName, cAmount, cTexture = GetCurrencyInfo(k);
-                --                    --                    GatherLite.tooltip:AddTexture(cTexture, { width = 14, height = 14 })
-                --                end;
             end
         end
 
@@ -515,26 +494,84 @@ GatherLite.spawnMarker = function(node, minimap)
         GatherLite.tooltip:Hide()
     end)
 
-    local icon = node.icon;
-    --    if GetItemInfo(node.icon) then
-    --        icon = GetItemIcon(node.icon);
-    --    end
-
-    f.texture = f:CreateTexture(nil, 'ARTWORK')
-    f.texture:SetAllPoints(f)
-    f.texture:SetTexture(icon)
-
-    if minimap then
-        --        Pins:AddMinimapIconWorld("GathererClassic", f, instance, node.position.x, node.position.y, false);
-        Pins:AddMinimapIconWorld("GathererClassic", f, mapID, x, y, false);
-    else
-        --        Pins:AddWorldMapIconWorld("GathererClassic", f, instance, x, y);
-        Pins:AddWorldMapIconWorld("GathererClassic", f, mapID, x, y, HBD_PINS_WORLDMAP_SHOW_PARENT);
-    end;
+    local x, y, instanceID = HBD:GetWorldCoordinatesFromZone(node.position.x, node.position.y, node.position.mapID);
+    Pins:AddWorldMapIconWorld("GathererClassic.Worldmap", f, instanceID, x, y);
+    --    Pins:AddWorldMapIconMap("GathererClassic.Worldmap", f, node.position.mapID, node.position.x, node.position.y, HBD_PINS_WORLDMAP_SHOW_PARENT);
+    table.insert(GatherLite.nodes.worldmap, { frame = f, mapID = node.position.mapID, x = node.position.x, y = node.position.y })
 end
 
+GatherLite.createMinimapNode = function(node, ik)
+    local f;
+
+    if (GatherLite.minimapFrames[node.type .. ik] == nil) then
+        GatherLite.minimapFrames[node.type .. ik] = CreateFrame('Button', "GatherLite.Minimap." .. ik, Minimap)
+    end
+
+    f = GatherLite.minimapFrames[node.type .. ik];
+
+    f:SetSize(GatherLiteConfigCharacter.minimapIconSize, GatherLiteConfigCharacter.minimapIconSize)
+    f:SetFrameLevel(1)
+    f:SetFrameStrata("HIGH")
+    f:EnableKeyboard(true)
+    f:SetPropagateKeyboardInput(true)
+    f:SetHighlightTexture("Interface\\Buttons\\UI-Panel-MinimizeButton-Highlight");
+    f.texture = f:CreateTexture(nil, 'ARTWORK')
+    f.texture:SetAllPoints(f)
+    f.texture:SetTexture(node.icon)
+    f:SetAlpha(GatherLiteConfigCharacter.minimapOpacity);
+
+    GetPlayerInfoByGUID(node.GUID)
+    f:SetScript('OnEnter', function()
+        if (f:GetAlpha() == 0) then
+            return
+        end
+
+        local locClass, engClass, locRace, engRace, gender, name = GetPlayerInfoByGUID(node.GUID);
+        local classColor = GatherLite.classColours[engClass];
+        local addLoot = false;
+
+        if node.loot and GatherLiteConfigCharacter.minimapLoot then
+            addLoot = true;
+        end
+
+        f:SetAlpha(1);
+        GatherLite.tooltip:ClearLines();
+
+        GatherLite.tooltip:SetOwner(f, "ANCHOR_CURSOR");
+
+        GatherLite.tooltip:SetText(node.name);
+        GatherLite.tooltip:AddDoubleLine("Last visit:", "|cffffffff" .. leadingZeros(node.date.day) .. '/' .. leadingZeros(node.date.month) .. '/' .. leadingZeros(node.date.year) .. " - " .. leadingZeros(node.date.hour) .. ':' .. leadingZeros(node.date.min) .. ':' .. leadingZeros(node.date.sec) .. "|r");
+
+        if addLoot then
+            for k, item in pairs(node.loot) do
+                GatherLite.tooltip:AddDoubleLine(k, "x" .. item.count);
+            end
+        end
+
+        GatherLite.tooltip:AddDoubleLine("Found by:", classColor.fs .. name);
+
+        GatherLite.tooltip:Show();
+        GatherLite.showingTooltip = true;
+    end)
+
+    f:SetScript('OnLeave', function()
+        if minimap then
+            f:SetAlpha(GatherLiteConfigCharacter.minimapOpacity);
+        else
+            f:SetAlpha(GatherLiteConfigCharacter.worldmapOpacity);
+        end;
+        GatherLite.tooltip:Hide()
+    end)
+
+    local x, y, instanceID = HBD:GetWorldCoordinatesFromZone(node.position.x, node.position.y, node.position.mapID);
+    Pins:AddMinimapIconWorld("GathererClassic.Worldmap", f, instanceID, x, y, GatherLiteConfigCharacter.minimapEdge);
+    --    Pins:AddMinimapIconMap("GathererClassic", f, node.position.mapID, node.position.x, node.position.y, true, false);
+    table.insert(GatherLite.nodes.minimap, { frame = f, mapID = node.position.mapID, x = node.position.x, y = node.position.y });
+end
+
+
 GatherLite.UpdateMapNodes = function()
-    Pins:RemoveAllWorldMapIcons("GathererClassic")
+    GatherLite.nodes.worldmap = {};
 
     if not GatherLiteConfigCharacter.enabled or not GatherLiteConfigCharacter.showOnWorldMap then
         return
@@ -545,7 +582,7 @@ GatherLite.UpdateMapNodes = function()
     if GatherLiteConfigCharacter.mining then
         if GatherLiteGlobalSettings.database["mining"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["mining"]) do
-                GatherLite.spawnMarker(node);
+                GatherLite.createWorldmapNode(node, k);
             end
         end
     end
@@ -553,7 +590,7 @@ GatherLite.UpdateMapNodes = function()
     if GatherLiteConfigCharacter.herbalism then
         if GatherLiteGlobalSettings.database["herbalism"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["herbalism"]) do
-                GatherLite.spawnMarker(node);
+                GatherLite.createWorldmapNode(node, k);
             end
         end
     end
@@ -562,7 +599,7 @@ GatherLite.UpdateMapNodes = function()
     if GatherLiteConfigCharacter.treasure then
         if GatherLiteGlobalSettings.database["treasure"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["treasure"]) do
-                GatherLite.spawnMarker(node);
+                GatherLite.createWorldmapNode(node, k);
             end
         end
     end
@@ -570,7 +607,7 @@ GatherLite.UpdateMapNodes = function()
     if GatherLiteConfigCharacter.artifacts then
         if GatherLiteGlobalSettings.database["artifacts"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["artifacts"]) do
-                GatherLite.spawnMarker(node);
+                GatherLite.createWorldmapNode(node, k);
             end
         end
     end
@@ -578,14 +615,15 @@ GatherLite.UpdateMapNodes = function()
     if GatherLiteConfigCharacter.fish then
         if GatherLiteGlobalSettings.database["fish"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["fish"]) do
-                GatherLite.spawnMarker(node);
+                GatherLite.createWorldmapNode(node, k);
             end
         end
     end
 end
 
 GatherLite.UpdateMinimapNodes = function()
-    Pins:RemoveAllMinimapIcons("GathererClassic")
+    GatherLite.nodes.minimap = {};
+    Pins:RemoveAllMinimapIcons("GathererClassic");
 
     if not GatherLiteConfigCharacter.enabled or not GatherLiteConfigCharacter.showOnMinimap then
         return
@@ -593,12 +631,10 @@ GatherLite.UpdateMinimapNodes = function()
 
     GatherLite.debug("Updating mini map nodes");
 
-    GatherLite.nodes.minimap = {};
-
     if GatherLiteConfigCharacter.mining then
         if GatherLiteGlobalSettings.database["mining"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["mining"]) do
-                GatherLite.spawnMarker(node, true);
+                GatherLite.createMinimapNode(node, k);
             end
         end
     end
@@ -606,7 +642,7 @@ GatherLite.UpdateMinimapNodes = function()
     if GatherLiteConfigCharacter.herbalism then
         if GatherLiteGlobalSettings.database["herbalism"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["herbalism"]) do
-                GatherLite.spawnMarker(node, true);
+                GatherLite.createMinimapNode(node, k);
             end
         end
     end
@@ -614,7 +650,7 @@ GatherLite.UpdateMinimapNodes = function()
     if GatherLiteConfigCharacter.treasure then
         if GatherLiteGlobalSettings.database["treasure"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["treasure"]) do
-                GatherLite.spawnMarker(node, true);
+                GatherLite.createMinimapNode(node, k);
             end
         end
     end
@@ -622,7 +658,7 @@ GatherLite.UpdateMinimapNodes = function()
     if GatherLiteConfigCharacter.artifacts then
         if GatherLiteGlobalSettings.database["artifacts"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["artifacts"]) do
-                GatherLite.spawnMarker(node, true);
+                GatherLite.createMinimapNode(node, k);
             end
         end
     end
@@ -630,7 +666,7 @@ GatherLite.UpdateMinimapNodes = function()
     if GatherLiteConfigCharacter.fish then
         if GatherLiteGlobalSettings.database["fish"] then
             for k, node in ipairs(GatherLiteGlobalSettings.database["fish"]) do
-                GatherLite.spawnMarker(node, true);
+                GatherLite.createMinimapNode(node, k);
             end
         end
     end
@@ -843,12 +879,26 @@ end
 GatherLite.foundTreasureChest = function()
     local loot = {};
     local count = GetNumLootItems()
+    local coin;
     for i = 1, count do
-        local lIcon, lName, lQuantity, lQuality = GetLootSlotInfo(i);
-        local slotType = GetLootSlotType(i);
-        local lLink = GetLootSlotLink(i);
-        loot[lLink] = { name = lName, count = tonumber(lQuantity) }
-    end;
+        local lIcon, lName, lQuantity, lQuality = GetLootSlotInfo(i)
+        local slotType = GetLootSlotType(i)
+        local lLink = GetLootSlotLink(i)
+        if (not lLink and slotType == LOOT_SLOT_MONEY) then
+            local i, j, val
+            i, j, val = string.find(lName, COPPER_AMOUNT:gsub("%%d", "(%%d+)", 1))
+            if (i) then coin = coin + val end
+            i, j, val = string.find(lName, SILVER_AMOUNT:gsub("%%d", "(%%d+)", 1))
+            if (i) then coin = coin + (val * 100) end
+            i, j, val = string.find(lName, GOLD_AMOUNT:gsub("%%d", "(%%d+)", 1))
+            if (i) then coin = coin + (val * 10000) end
+            if (coin == 0) then
+                loot[lLink] = { name = lName, count = tonumber(lQuantity) }
+            end
+        else
+            loot[lLink] = { name = lName, count = tonumber(lQuantity) }
+        end
+    end
     -- chest icon 132594
 
     GatherLite.addNode(GatherLite.tracker.spellID, GatherLite.tracker.spellType, GatherLite.tracker.target, 132594, loot);
@@ -859,7 +909,7 @@ GatherLite.handleSpell = function(event, spell, target)
     if (event == "UNIT_SPELLCAST_SENT") then
         local spellType = GatherLite.findSpellType(spell);
         if (spellType) then
-            GatherLite.debug("Started gathering with " .. GetSpellInfo(spell));
+            GatherLite.debug("Started gathering with " .. GetSpellInfo(spell), spell);
             GatherLite.tracker.target = target;
             GatherLite.tracker.spellID = spell;
             GatherLite.tracker.spellType = spellType;
@@ -888,7 +938,8 @@ GatherLite.mainFrame:SetScript('OnUpdate', function(self, elapsed)
     if (GatherLite.TimeSinceLastUpdate > GatherLite.UpdateInterval) then
         local x, y, instance = HBD:GetPlayerWorldPosition();
         for k, node in ipairs(GatherLite.nodes.minimap) do
-            local distance, deltax, deltay = HBD:GetWorldDistance(instance, x, y, node.x, node.y);
+            local x2, y2 = HBD:GetWorldCoordinatesFromZone(node.x, node.y, node.mapID);
+            local distance = HBD:GetWorldDistance(instance, x, y, x2, y2);
             if (distance) then
                 if distance < 70 then
                     node.frame:SetAlpha(0);
@@ -964,5 +1015,5 @@ end)
 
 WorldMapFrame.ScrollContainer.Child:SetScript("OnHide", function()
     GatherLite.debug("map closed");
-    Pins:RemoveAllWorldMapIcons("GathererClassic")
+    Pins:RemoveAllWorldMapIcons("GathererClassic.Worldmap");
 end)
