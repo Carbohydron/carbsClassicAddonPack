@@ -76,7 +76,7 @@ Version = "Prat |cff8080ff3.0|r (|cff8080ff" .. "DEBUG" .. "|r)"
 --@end-debug@]===]
 
 --@non-debug@
-Version = "Prat |cff8080ff3.0|r (|cff8080ff".."3.2.28".."|r)"
+Version = "Prat |cff8080ff3.0|r (|cff8080ff".."3.2.30".."|r)"
 --@end-non-debug@
 
 

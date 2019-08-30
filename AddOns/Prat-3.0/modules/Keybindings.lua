@@ -132,8 +132,7 @@ L = {
 		["Copy Selected Chat Frame"] = "Ausgewähltes Chatfenster kopieren",
 		["Guild Channel"] = "Gildenkanal",
 		["Instance Channel"] = "Schlachtfeld-Kanal",
-		--[[Translation missing --]]
-		["module_desc"] = "Adds chat related keybindings",
+		["module_desc"] = "Fügt chatbezogene Tastenkombinationen hinzu",
 		["Next Chat Tab"] = "Nächster Chatreiter",
 		["Officer Channel"] = "Offizierskanal",
 		["Party Channel"] = "Gruppenkanal",

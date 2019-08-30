@@ -301,18 +301,14 @@ L = {
 		["Show Chat%d Arrows"] = "Navigationspfeile im Chat%d anzeigen",
 		["showbnet_desc"] = "Geselligkeitsmenü anzeigen",
 		["showbnet_name"] = "Geselligkeitsmenü anzeigen",
-		--[[Translation missing --]]
-		["showchannel_desc"] = "Show Channel Button",
-		--[[Translation missing --]]
-		["showchannel_name"] = "Show Channel Button",
+		["showchannel_desc"] = "Kanalschaltfläche anzeigen",
+		["showchannel_name"] = "Kanalschaltfläche anzeigen",
 		["showmenu_desc"] = "Chatmenü anzeigen",
-		["showmenu_name"] = "Menü anzeigen",
+		["showmenu_name"] = "Zeige das Menü",
 		["showminimize_desc"] = "Zeigt den Schalter zum Minimieren an",
 		["showminimize_name"] = "Zeige Minimieren-Knopf",
-		--[[Translation missing --]]
-		["showvoice_desc"] = "Show Voice Buttons",
-		--[[Translation missing --]]
-		["showvoice_name"] = "Show Voice Buttons",
+		["showvoice_desc"] = "Sprachschaltflächen anzeigen",
+		["showvoice_name"] = "Sprachschaltflächen anzeigen",
 		["Toggle showing chat arrows for each chat window."] = "Anzeige der Navigationspfeile für jedes Chatfenster ein- und ausschalten.",
 		["Toggles navigation arrows on and off."] = "Schaltet die Anzeige der Navigationspfeile an und aus",
 	}

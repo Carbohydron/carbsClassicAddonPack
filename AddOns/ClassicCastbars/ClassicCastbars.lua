@@ -27,7 +27,7 @@ local CombatLogGetCurrentEventInfo = _G.CombatLogGetCurrentEventInfo
 local GetTime = _G.GetTime
 local max = _G.math.max
 local next = _G.next
-local CastingInfo = _G.CastingInfo or _G.UnitCastingInfo
+local CastingInfo = _G.CastingInfo
 local bit_band = _G.bit.band
 local COMBATLOG_OBJECT_TYPE_PLAYER = _G.COMBATLOG_OBJECT_TYPE_PLAYER
 
@@ -74,22 +74,24 @@ function addon:StopAllCasts(unitGUID)
     end
 end
 
-function addon:StoreCast(unitGUID, spellName, iconTexturePath, castTime, spellRank, isChanneled)
+function addon:StoreCast(unitGUID, spellName, iconTexturePath, castTime, isChanneled)
     local currTime = GetTime()
 
-    -- Store cast data from CLEU in an object, we can't store this in the castbar frame itself
-    -- since frames are constantly recycled between different units.
-    -- TODO: we can prob reuse objects here
-    activeTimers[unitGUID] = {
-        spellName = spellName,
-        spellRank = spellRank,
-        icon = iconTexturePath,
-        maxValue = castTime / 1000,
-        --timeStart = currTime,
-        endTime = currTime + (castTime / 1000),
-        unitGUID = unitGUID,
-        isChanneled = isChanneled,
-    }
+    if not activeTimers[unitGUID] then
+        activeTimers[unitGUID] = {}
+    end
+
+    local cast = activeTimers[unitGUID]
+    cast.spellName = spellName
+    cast.icon = iconTexturePath
+    cast.maxValue = castTime / 1000
+    cast.endTime = currTime + (castTime / 1000)
+    cast.isChanneled = isChanneled
+    cast.unitGUID = unitGUID
+    cast.prevCurrTimeModValue = nil
+    cast.currTimeModValue = nil
+    cast.pushbackValue = nil
+    cast.showCastInfoOnly = nil
 
     self:StartAllCasts(unitGUID)
 end
@@ -189,8 +191,14 @@ end
 function addon:ToggleUnitEvents(shouldReset)
     if self.db.target.enabled then
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
+        if self.db.target.autoPosition then
+            self:RegisterUnitEvent("UNIT_AURA", "target")
+            self:RegisterEvent("UNIT_TARGET")
+        end
     else
         self:UnregisterEvent("PLAYER_TARGET_CHANGED")
+        self:UnregisterEvent("UNIT_AURA")
+        self:UnregisterEvent("UNIT_TARGET")
     end
 
     if self.db.nameplate.enabled then
@@ -268,6 +276,32 @@ function addon:PLAYER_LOGIN()
     self.PLAYER_LOGIN = nil
 end
 
+local auraRows = 0
+function addon:UNIT_AURA()
+    if not self.db.target.autoPosition then return end
+    if auraRows == TargetFrame.auraRows then return end
+    auraRows = TargetFrame.auraRows
+
+    if activeFrames.target and activeGUIDs.target then
+        local parentFrame = self.AnchorManager:GetAnchor("target")
+        if parentFrame then
+            self:SetTargetCastbarPosition(activeFrames.target, parentFrame)
+        end
+    end
+end
+
+function addon:UNIT_TARGET(unitID)
+    -- reanchor castbar when target of target is cleared or shown
+    if unitID == "target" or unitID == "player" then
+        if activeFrames.target and activeGUIDs.target then
+            local parentFrame = self.AnchorManager:GetAnchor("target")
+            if parentFrame then
+                self:SetTargetCastbarPosition(activeFrames.target, parentFrame)
+            end
+        end
+    end
+end
+
 -- Bind unitIDs to unitGUIDs so we can efficiently get unitIDs in CLEU events
 function addon:PLAYER_TARGET_CHANGED()
     activeGUIDs.target = UnitGUID("target") or nil
@@ -324,12 +358,12 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
         -- Also there's no castTime returned from GetSpellInfo for channeled spells so we need to get it from our own list
         local channelData = channeledSpells[spellName]
         if channelData then
-            return self:StoreCast(srcGUID, spellName, GetSpellTexture(channelData[2]), channelData[1] * 1000, nil, true)
+            return self:StoreCast(srcGUID, spellName, GetSpellTexture(channelData[2]), channelData[1] * 1000, true)
         end
 
         -- non-channeled spell, finish it.
         -- We also check the expiration timer in OnUpdate script just incase this event doesn't trigger when i.e unit is no longer in range.
-        -- Note: It's still possible to get a memory leak here since OnUpdate is only ran for active frames, but adding extra
+        -- Note: It's still possible to get a memory leak here since OnUpdate is only ran for active/shown frames, but adding extra
         -- timer checks just to save a few kb extra memory in extremly rare situations is not really worth the performance hit.
         -- All data is cleared on loading screens anyways.
         return self:DeleteCast(srcGUID)
@@ -353,7 +387,7 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
     elseif eventType == "SPELL_CAST_FAILED" then
         if srcGUID == self.PLAYER_GUID then
             -- Spamming cast keybinding triggers SPELL_CAST_FAILED so check if actually casting or not for the player
-            if not CastingInfo("player") then
+            if not CastingInfo() then
                 return self:DeleteCast(srcGUID)
             end
         else

@@ -28,7 +28,6 @@ function AutoDisplay:RegisterGameEvents()
 	self:RegisterDisplayEvents('displayAuction', 'AUCTION_HOUSE_SHOW', 'AUCTION_HOUSE_CLOSED')
 	self:RegisterDisplayEvents('displayCraft', 'TRADE_SKILL_SHOW', 'TRADE_SKILL_CLOSE')
 	self:RegisterDisplayEvents('displayTrade', 'TRADE_SHOW', 'TRADE_CLOSED')
-	self:RegisterDisplayEvents('displayGems', 'SOCKET_INFO_UPDATE')
 
 	self:RegisterDisplayEvents('closeCombat', nil, 'PLAYER_REGEN_DISABLED')
 	self:RegisterDisplayEvents('closeVehicle', nil, 'UNIT_ENTERED_VEHICLE')
@@ -36,6 +35,10 @@ function AutoDisplay:RegisterGameEvents()
 
 	if CanGuildBankRepair then
 		self:RegisterDisplayEvents('displayGuild', 'GUILDBANKFRAME_OPENED', 'GUILDBANKFRAME_CLOSED')
+	end
+
+	if C_ItemSocketInfo then
+		self:RegisterDisplayEvents('displayGems', 'SOCKET_INFO_UPDATE')
 	end
 
 	if C_ScrappingMachineUI then

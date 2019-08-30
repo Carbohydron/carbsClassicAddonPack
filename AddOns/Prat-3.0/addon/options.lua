@@ -146,8 +146,7 @@ L = {
 	["modulecontrol_name"] = "Modulsteuerung",
 	["prat"] = "Prat",
 	["reload_required"] = "Diese Änderung wird erst nach dem Neustart vollständig wirksam.",
-	--[[Translation missing --]]
-	["unloaded_desc"] = "Module is not loaded, load it to see description"
+	["unloaded_desc"] = "Modul ist nicht geladen, lade es, um die Beschreibung zu sehen"
 }
 
 

@@ -3,8 +3,9 @@
 ## Author: thisbarker
 ## SavedVariables: EZCoordinates_SavedVars
 ## Notes: Displays player coordinates
-## Version: 0.0.4
+## Version: 1.0.0
 
+Core.lua
 Config.xml
 MinimapCoordinates.xml
 WorldMapFrameCoordinates.xml

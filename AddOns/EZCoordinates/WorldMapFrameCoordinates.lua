@@ -1,52 +1,26 @@
-local updateInterval = (1 / 30);
-local playerPosition;
-local mousePosition;
-local trackMouse = false;
-local lastUpdate = 0;
+-- Static
 local localWorldMapFrame = WorldMapFrame;
-local isAnyBGActive = false;
+
+-- Constant
+local updateInterval = (1 / 30); -- used to only update the UI every 1/30 ticks. Preventing useless CPU cycles.
+
+-- Updated every OnUpdate
+local lastUpdate = 0;
+
+-- Updated every updateInterval, to automatically change display text after a user has changed the value
 local showPreciseValues = false;
 
+-- Conditionally updated when it actually has changed
+local lastPlayerPosition = nil;
+local lastMousePosition = nil;
+
+-- Updated when the user moves their mouse in or out of the WorldMapFrame
+local trackMouse = false;
+
 function WorldMapFrameCoordinates_OnUpdate(self, elapsed)
-	local maxBattlefieldId = GetMaxBattlefieldID();
-	local isBGActive = false;
-
-	for i=1, maxBattlefieldId do
-		local status = GetBattlefieldStatus(i);
-
-		if (status == "active") then
-			isBGActive = true
-			break;
-		end
-	end
-
-	isAnyBGActive = isBGActive;
-
-	if (isAnyBGActive) then
-		WorldMapFramePlayerCoordinatesDisplay:Hide();
-		WorldMapFrameMouseCoordinatesDisplay:Hide();
-	else
-		WorldMapFramePlayerCoordinatesDisplay:Show();
-		WorldMapFrameMouseCoordinatesDisplay:Show();
-	end
-	
-	if ((not isAnyBGActive and lastUpdate >= updateInterval)) then
-		local currentPlayerPosition = WorldMapFramePlayerCoordinates_GetPlayerLocation();
-		
-		if (currentPlayerPosition ~= nil and (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues or not playerPosition or currentPlayerPosition.Map ~= playerPosition.Map or currentPlayerPosition.X ~= playerPosition.X or currentPlayerPosition.Y ~= playerPosition.Y)) then
-			playerPosition = currentPlayerPosition;
-			
-			WorldMapFramePlayerCoordinates_Update();
-		end
-		
-		if (trackMouse) then
-			local currentMousePosition  = WorldMapFramePlayerCoordinates_GetMouseLocation();
-			if (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues or not mousePosition or mousePosition.X ~= currentMousePosition.X or mousePosition.Y ~= currentMousePosition.Y) then
-				mousePosition = currentMousePosition;
-
-				WorldMapFrameMouseCoordinates_Update();
-			end
-		end
+	if (lastUpdate >= updateInterval) then
+		WorldMapFramePlayerCoordinates_UpdatePlayerPosition();
+		WorldMapFrameMouseCoordinates_UpdateMousePosition();
 
 		lastUpdate = 0;
 		showPreciseValues = EZCoordinates_SavedVars.ShowPreciseValues;
@@ -61,75 +35,73 @@ end
 
 function WorldMapFrameCoordinates_OnLeave(self)
 	trackMouse = false;
-	mousePosition = nil;
+	lastMousePosition = nil;
 
-	if (not isAnyBGActive) then
-		WorldMapFrameMouseCoordinates_Update();
+	-- Force the UI to remove the mouse tracking text immediately
+	WorldMapFrameMouseCoordinates_UpdateMousePosition(true);
+end
+
+function WorldMapFramePlayerCoordinates_UpdatePlayerPosition()
+	local currentPlayerPosition = LocationManager_GetPlayerLocation();
+	local shouldUpdatePlayerPosition = false;
+
+	if (currentPlayerPosition == nil and lastPlayerPosition == nil) then
+		-- No need to update
+	elseif (currentPlayerPosition == nil and lastPlayerPosition ~= nil) then
+		shouldUpdatePlayerPosition = true;
+	elseif (currentPlayerPosition ~= nil and lastPlayerPosition == nil) then
+		shouldUpdatePlayerPosition = true;
+	elseif (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues) then
+		shouldUpdatePlayerPosition = true;
+	elseif (lastPlayerPosition.Map ~= currentPlayerPosition.Map or lastPlayerPosition.X ~= currentPlayerPosition.X or lastPlayerPosition.Y ~= currentPlayerPosition.Y) then
+		shouldUpdatePlayerPosition = true;
+	end
+
+	if (shouldUpdatePlayerPosition) then
+		lastPlayerPosition = currentPlayerPosition;
+		
+		local positionText = LocationManager_GetPositionText(lastPlayerPosition);
+	
+		if (positionText ~= nil) then
+			WorldMapFramePlayerCoordinatesDisplay:SetText("Player: " .. positionText);
+		else
+			WorldMapFramePlayerCoordinatesDisplay:SetText(nil);
+		end
 	end
 end
 
-function WorldMapFramePlayerCoordinates_GetPlayerLocation()
-	local map = C_Map.GetBestMapForUnit("player");
-	local position = C_Map.GetPlayerMapPosition(map, "player");
+function WorldMapFrameMouseCoordinates_UpdateMousePosition(force)
+	if (trackMouse) then
+		local currentMousePosition  = LocationManager_GetMouseLocation(localWorldMapFrame);
+		local shouldUpdateMousePosition = false;
 
-	return {
-		Map = map,
-		X = position.x,
-		Y = position.y,
-	}
-end
-
-function WorldMapFramePlayerCoordinates_GetMouseLocation()
-	if (localWorldMapFrame) then
-		local x, y = GetCursorPosition();
-		local left, top = localWorldMapFrame.ScrollContainer:GetLeft(), localWorldMapFrame.ScrollContainer:GetTop();
-		local width = localWorldMapFrame.ScrollContainer:GetWidth();
-		local height = localWorldMapFrame.ScrollContainer:GetHeight()
-		local scale = localWorldMapFrame.ScrollContainer:GetEffectiveScale();
-		local cx = (x/scale - left) / width
-		local cy = (top - y/scale) / height
-
-		if cx < 0 or cx > 1 or cy < 0 or cy > 1 then
-			cx, cy = nil, nil
+		if (currentMousePosition == nil and lastMousePosition == nil) then
+			-- No need to update
+		elseif (currentMousePosition == nil and lastMousePosition ~= nil) then
+			shouldUpdateMousePosition = true;
+		elseif (currentMousePosition ~= nil and lastMousePosition == nil) then
+			shouldUpdateMousePosition = true;
+		elseif (EZCoordinates_SavedVars.ShowPreciseValues ~= showPreciseValues) then
+			shouldUpdateMousePosition = true;
+		elseif (lastMousePosition.X ~= currentMousePosition.X or lastMousePosition.Y ~= currentMousePosition.Y) then
+			shouldUpdateMousePosition = true;
 		end
 
-		return {
-			X = cx,
-			Y = cy,
-		};
-	end
-end
-
-function WorldMapFramePlayerCoordinates_Update()
-	local positionText = WorldMapFrameCoordinates_GetPositionText(playerPosition);
+		if (shouldUpdateMousePosition) then
+			lastMousePosition = currentMousePosition;
+			
+			local positionText = LocationManager_GetPositionText(lastMousePosition);
 	
-	WorldMapFramePlayerCoordinatesDisplay:SetText("Player: " .. positionText);
-end
-
-function WorldMapFrameMouseCoordinates_Update()
-	local positionText = WorldMapFrameCoordinates_GetPositionText(mousePosition);
-	
-	if (positionText ~= nil) then
-		WorldMapFrameMouseCoordinatesDisplay:SetText("Mouse: " .. positionText);
-	else
-		WorldMapFrameMouseCoordinatesDisplay:SetText(nil);
-	end
-end
-
-function WorldMapFrameCoordinates_GetPositionText(position)
-	if (position) then
-		local x = position.X and position.X or 0;
-		local y = position.Y and position.Y or 0;
-
-		local formatString = "%d, %d";
-
-		if (EZCoordinates_SavedVars.ShowPreciseValues) then
-			formatString = "%0.2f,%0.2f";
+			if (positionText ~= nil) then
+				WorldMapFrameMouseCoordinatesDisplay:SetText("Mouse: " .. positionText);
+			else
+				WorldMapFrameMouseCoordinatesDisplay:SetText(nil);
+			end
 		end
+	elseif (force) then
+		local positionText = LocationManager_GetPositionText(lastMousePosition);
 
-		local positionText = format("(" .. formatString .. ")", x * 100, y * 100);
-
-		return positionText;
+		WorldMapFrameMouseCoordinatesDisplay:SetText(positionText);
 	end
 end
 
