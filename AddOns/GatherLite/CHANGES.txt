@@ -1,10 +1,10 @@
-lightweight tag 5dbe27e8d9716e91c83a5aac3f38817fa4f51221 1.0.32-classic
+lightweight tag 1da58733bd73b74fdf97c81bf9ecfc524be3d444 1.1.0-classic
 Author:	Wuild <wuildz@gmail.com>
-Date:	Fri Aug 30 17:14:29 2019 +0200
+Date:	Fri Aug 30 21:33:51 2019 +0200
 
-commit 5dbe27e8d9716e91c83a5aac3f38817fa4f51221
+commit 1da58733bd73b74fdf97c81bf9ecfc524be3d444
 Author: Wuild <wuildz@gmail.com>
-Date:   Fri Aug 30 17:14:29 2019 +0200
+Date:   Fri Aug 30 21:33:51 2019 +0200
 
-    nodes on world, minimap edge
+    1.1.0 major release
 
