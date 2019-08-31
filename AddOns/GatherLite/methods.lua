@@ -2,6 +2,8 @@ local name, GatherLite = ...;
 local HBD = LibStub("HereBeDragons-2.0");
 local Pins = LibStub("HereBeDragons-Pins-2.0");
 
+GatherLite.WorldMapOpen = false;
+
 -- print message
 GatherLite.print = function(...)
     print("|cffF0E68C[" .. GatherLite.name .. "]|cffFFFFFF:", ...)
@@ -238,6 +240,19 @@ GatherLite.insertDatabaseNode = function(x, y, mapID, spellID, spellType, target
     table.insert(GatherLiteGlobalSettings.database[spellType], node);
     GatherLite.needMapUpdate = true;
     GatherLite.debug("Adding node at " .. "|cff32CD32" .. node.position.x .. " " .. node.position.y .. "|r");
+
+    local dataString = tostring('newdata' .. ':' .. UnitGUID('player') .. ":" .. node.type .. ":" .. node.spellID .. ":" .. node.target .. ":" .. node.target .. ":" .. node.icon .. ":" .. node.position.mapID .. ":" .. node.position.x .. ":" .. node.position.y)
+
+    if IsInGuild() and GatherLiteConfigCharacter.shareGuild then
+        C_ChatInfo.SendAddonMessage(GatherLite.name, dataString, 'GUILD')
+        GatherLite.debug("sharing node with guild");
+    end
+
+    if IsInGroup() and GatherLiteConfigCharacter.shareParty then
+        C_ChatInfo.SendAddonMessage(GatherLite.name, dataString, 'PARTY')
+        GatherLite.debug("sharing node with party");
+    end
+
 end
 
 GatherLite.updateDatabaseNode = function(node, loot)
@@ -254,10 +269,23 @@ GatherLite.updateDatabaseNode = function(node, loot)
         end;
     end
     GatherLite.needMapUpdate = true;
+
+    local dataString = tostring('newdata' .. ':' .. UnitGUID('player') .. ":" .. node.type .. ":" .. node.spellID .. ":" .. node.target .. ":" .. node.target .. ":" .. node.icon .. ":" .. node.position.mapID .. ":" .. node.position.x .. ":" .. node.position.y)
+
+    if IsInGuild() and GatherLiteConfigCharacter.shareGuild then
+        C_ChatInfo.SendAddonMessage(GatherLite.name, dataString, 'GUILD')
+        GatherLite.debug("sharing node with guild");
+    end
+
+    if IsInGroup() and GatherLiteConfigCharacter.shareParty then
+        C_ChatInfo.SendAddonMessage(GatherLite.name, dataString, 'PARTY')
+        GatherLite.debug("sharing node with party");
+    end
 end
 
 GatherLite.drawWorldmap = function()
     GatherLite.nodes.worldmap = {};
+    GatherLite.removeWorldmapNodes();
 
     if not GatherLiteConfigCharacter.enabled or not GatherLiteConfigCharacter.showOnWorldMap then
         return
@@ -502,7 +530,7 @@ GatherLite.ParseSentData = function(msg, sender)
         end
     end
 
-    if not GatherLite.findExistingNode(a, data[8], data[9]) then
+    if not GatherLite.findExistingNode(spellType, data[8], data[9]) then
         local node = {
             GUID = data[1],
             type = data[2],
