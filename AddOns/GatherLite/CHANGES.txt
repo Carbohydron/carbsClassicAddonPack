@@ -1,10 +1,10 @@
-lightweight tag 1da58733bd73b74fdf97c81bf9ecfc524be3d444 1.1.0-classic
+lightweight tag c3de5460f03f97df8cbcb8b66c540d4f7b168e54 1.1.2-classic
 Author:	Wuild <wuildz@gmail.com>
-Date:	Fri Aug 30 21:33:51 2019 +0200
+Date:	Fri Aug 30 22:13:03 2019 +0200
 
-commit 1da58733bd73b74fdf97c81bf9ecfc524be3d444
+commit c3de5460f03f97df8cbcb8b66c540d4f7b168e54
 Author: Wuild <wuildz@gmail.com>
-Date:   Fri Aug 30 21:33:51 2019 +0200
+Date:   Fri Aug 30 22:13:03 2019 +0200
 
-    1.1.0 major release
+    added p2p functions
 
