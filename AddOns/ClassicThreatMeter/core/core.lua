@@ -10,10 +10,10 @@ local unpack	= _G.unpack
 local tonumber	= _G.tonumber
 local type		= _G.type
 local floor		= _G.math.floor
-local byte		= _G.string.byte
+local strbyte	= _G.string.byte
 local format	= _G.string.format
-local len		= _G.string.len
-local sub		= _G.string.sub
+local strlen	= _G.string.len
+local strsub	= _G.string.sub
 
 local ipairs	= _G.ipairs
 local pairs		= _G.pairs
@@ -37,7 +37,6 @@ local FACTION_BAR_COLORS	= _G.FACTION_BAR_COLORS
 local RAID_CLASS_COLORS		= _G.RAID_CLASS_COLORS
 
 -- other
-local loaded = false
 local bars = {}
 local threatData = {}
 local threatColors = {}
@@ -166,14 +165,14 @@ end
 
 local function ShortenString(str, i, ellipsis)
 	if not str then return end
-	local bytes = len(str)
+	local bytes = strlen(str)
 	if bytes <= i then
 		return str
 	else
 		local length, pos = 0, 1
 		while (pos <= bytes) do
 			length = length + 1
-			local c = byte(str, pos)
+			local c = strbyte(str, pos)
 			if c > 0 and c <= 127 then
 				pos = pos + 1
 			elseif c >= 192 and c <= 223 then
@@ -186,7 +185,7 @@ local function ShortenString(str, i, ellipsis)
 			if length == i then break end
 		end
 		if length == i and pos <= bytes then
-			return sub(str, 1, pos - 1) .. (ellipsis and "..." or "")
+			return strsub(str, 1, pos - 1) .. (ellipsis and "..." or "")
 		else
 			return str
 		end
@@ -223,6 +222,7 @@ local function UpdateThreatBars()
 		local data = threatData[i]
 		local bar = CTM.bars[i]
 		if data and data.threatValue > 0 then
+			if bar == CTM.bars[1] then data.scaledPercent = 100 end -- temporary?
 			bar.name:SetText(UnitName(data.unit) or UNKNOWN)
 			bar.val:SetText(NumFormat(data.threatValue))
 			bar.perc:SetText(floor(data.scaledPercent).."%")
@@ -273,7 +273,6 @@ local function UpdateThreatData(unit)
 end
 
 local function CheckStatus()
-	if not loaded then return end
 	if C.frame.test then return end
 
 	local hideFrame = CheckVisibility()
@@ -288,8 +287,7 @@ local function CheckStatus()
 
 	if UnitExists(target) then -- and UnitAffectingCombat(target) then
 		local now = GetTime()
-		if now - oldTime > C.general.update then
-			-- wipe
+		-- wipe
 			wipe(threatData)
 			local numGroupMembers = GetNumGroupMembers()
 			local inRaid = IsInRaid()
@@ -312,10 +310,9 @@ local function CheckStatus()
 			end
 			UpdateThreatBars()
 			oldTime = now
-		end
 		-- set header unit name
 		local targetName = UnitExists(target) and (": " .. UnitName(target)) or ""
-		targetName = ShortenString(targetName, floor(CTM.header:GetWidth() / (C.font.size * 0.75)), true)
+		targetName = ShortenString(targetName, floor(CTM.header:GetWidth() / (C.font.size * 0.85)), true)
 		CTM.headerText:SetText(format("%s%s", L.gui_threat, targetName))
 	else
 		-- clear header text of unit name
@@ -328,13 +325,6 @@ local function CheckStatus()
 	end
 end
 
-if A.classic then
-	ThreatLib:RegisterCallback("Activate", CheckStatus)
-	ThreatLib:RegisterCallback("Deactivate", CheckStatus)
-	ThreatLib:RegisterCallback("ThreatUpdated", CheckStatus)
-	ThreatLib:RequestActiveOnSolo(true)
-end
-
 -----------------------------
 -- UPDATE FRAME
 -----------------------------
@@ -344,10 +334,12 @@ local function SetPosition(f)
 end
 
 local function OnDragStart(f)
+	if f:GetParent() == CTM then f = f:GetParent() end
 	f:StartMoving()
 end
 
 local function OnDragStop(f)
+	if f:GetParent() == CTM then f = f:GetParent() end
 	f:StopMovingOrSizing()
 	SetPosition(f)
 end
@@ -363,6 +355,7 @@ function CTM:UpdateFrame()
 	self:ClearAllPoints()
 	self:SetPoint(unpack(C.frame.position))
 	self:SetScale(C.frame.scale)
+	self:SetFrameStrata(strsub(C.frame.strata, 3))
 
 	if not C.frame.locked then
 		self:EnableMouse(true)
@@ -371,9 +364,18 @@ function CTM:UpdateFrame()
 		self:RegisterForDrag("LeftButton")
 		self:SetScript("OnDragStart", OnDragStart)
 		self:SetScript("OnDragStop", OnDragStop)
+
+		self.header:EnableMouse(true)
+		self.header:SetMovable(true)
+		self.header:SetClampedToScreen(true)
+		self.header:RegisterForDrag("LeftButton")
+		self.header:SetScript("OnDragStart", OnDragStart)
+		self.header:SetScript("OnDragStop", OnDragStop)
 	else
 		self:EnableMouse(false)
 		self:SetMovable(false)
+		self.header:EnableMouse(false)
+		self.header:SetMovable(false)
 	end
 
 	-- Background
@@ -461,6 +463,7 @@ local function UpdateNameplateThreat(self)
 	local unit = self.unit
 	if not unit then return end
 	if not unit:match("nameplate%d?$") then return end
+	if UnitIsPlayer(unit) then return end -- prevent coloring player nameplates
 	local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
 	if not nameplate then return end
 	local status = UnitThreatSituation("player", unit)
@@ -583,7 +586,7 @@ end
 -----------------------------
 CTM:RegisterEvent("PLAYER_LOGIN")
 CTM:SetScript("OnEvent", function(self, event, ...)
-	return self[event](self, event, ...)
+	return self[event] and self[event](self, event, ...)
 end)
 
 function CTM:PLAYER_ENTERING_WORLD(...)
@@ -591,6 +594,7 @@ function CTM:PLAYER_ENTERING_WORLD(...)
 	playerGUID = UnitGUID("player")
 	-- CheckVersionOLD(self, ...)
 	CheckStatus()
+	-- self.PLAYER_ENTERING_WORLD = nil
 end
 
 function CTM:PLAYER_TARGET_CHANGED(...)
@@ -605,12 +609,14 @@ end
 
 function CTM:PLAYER_REGEN_DISABLED(...)
 	C.frame.test = false
+	ThreatLib.RegisterCallback(self, "ThreatUpdated", CheckStatus)
 	CheckStatus()
 end
 
 function CTM:PLAYER_REGEN_ENABLED(...)
 	collectgarbage()
 	C.frame.test = false
+	ThreatLib.UnregisterCallback(self, "ThreatUpdated", CheckStatus)
 	CheckStatus()
 end
 
@@ -620,7 +626,7 @@ function CTM:UNIT_THREAT_LIST_UPDATE(...)
 end
 
 function CTM:PLAYER_LOGIN()
-	C_ChatInfo.RegisterAddonMessagePrefix("CTMVer")
+	-- C_ChatInfo.RegisterAddonMessagePrefix("CTMVer")
 
 	CTM_Options = CTM_Options or {}
 	C = CopyDefaults(A.defaultConfig, CTM_Options)
@@ -640,7 +646,6 @@ function CTM:PLAYER_LOGIN()
 	self:UpdateMenu()
 
 	-- Setup frame
-	self:SetFrameStrata("BACKGROUND")
 	self:SetFrameLevel(1)
 	self:ClearAllPoints()
 	self:SetPoint(unpack(C.frame.position))
@@ -689,13 +694,16 @@ function CTM:PLAYER_LOGIN()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-	if not A.classic then
+	if A.classic then
+		ThreatLib.RegisterCallback(self, "Activate", CheckStatus)
+		ThreatLib.RegisterCallback(self, "Deactivate", CheckStatus)
+		ThreatLib.RegisterCallback(self, "ThreatUpdated", CheckStatus)
+		ThreatLib:RequestActiveOnSolo(true)
+	else
 		self:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
 	end
 
 	self:SetupConfig()
-
-	loaded = true
 
 	self:UnregisterEvent("PLAYER_LOGIN")
 	self.PLAYER_LOGIN = nil
@@ -907,8 +915,30 @@ CTM.configTable = {
 							name = L.frame_lock,
 							type = "toggle",
 						},
-						scale = {
+						strata = {
 							order = 3,
+							name = L.frame_strata,
+							type = "select",
+							values = {
+								["1-BACKGROUND"] = "BACKGROUND",
+								["2-LOW"] = "LOW",
+								["3-MEDIUM"] = "MEDIUM",
+								["4-HIGH"] = "HIGH",
+								["5-DIALOG"] = "DIALOG",
+								["6-FULLSCREEN"] = "FULLSCREEN",
+								["7-FULLSCREEN_DIALOG"] = "FULLSCREEN_DIALOG",
+								["8-TOOLTIP"] = "TOOLTIP",
+							},
+							style = "dropdown",
+						},
+						-- width here
+						headerShow = {
+							order = 4,
+							name = L.frame_headerShow,
+							type = "toggle",
+						},
+						scale = {
+							order = 5,
 							name = L.frame_scale,
 							type = "range",
 							min = 50,
@@ -923,14 +953,8 @@ CTM.configTable = {
 								CTM:UpdateFrame()
 							end,
 						},
-						-- width here
-						headerShow = {
-							order = 4,
-							name = L.frame_headerShow,
-							type = "toggle",
-						},
 						frameColors = {
-							order = 5,
+							order = 6,
 							name = L.color,
 							type = "group",
 							inline = true,

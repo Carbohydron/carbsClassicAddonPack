@@ -1,6 +1,6 @@
 ﻿## Interface: 11302
 ## Author: Lag
-## Version: v1.1.7-beta1
+## Version: v1.1.8-beta
 ## Dependencies: AtlasLootClassic
 ## LoadOnDemand: 1
 
@@ -23,7 +23,7 @@
 ## Notes-itIT: AtlasLoot loot tables from Dungeons and Raids
 ## Notes-koKR: AtlasLoot loot tables from Dungeons and Raids
 ## Notes-ptBR: AtlasLoot loot tables from Dungeons and Raids
-## Notes-ruRU: Таблицы добычи AtlasLoot от Подземелий и Рейдов
+## Notes-ruRU: Таблицы добычи AtlasLoot с Подземелий и Рейдов
 ## Notes-zhCN: AtlasLoot 地下城&团队副本掉落列表
 ## Notes-zhTW: AtlasLoot loot tables from Dungeons and Raids
 
