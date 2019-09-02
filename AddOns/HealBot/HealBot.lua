@@ -28,6 +28,7 @@ end
 for i = 1, #HealBot_Default_Fonts do
     LSM:Register("font", HealBot_Default_Fonts[i].name, HealBot_Default_Fonts[i].file)
 end
+local libCHC = nil
 local LDB11 = LibStub("LibDataBroker-1.1", true)
 local LDBIcon = LibStub("LibDBIcon-1.0", true)
 local HealBot_PlayerBuff={}
@@ -517,24 +518,7 @@ local function HealBot_Reset_AutoUpdateDebuffIDs()
     end
 end
 
-local function HealBot_Reset_AutoUpdateBuffIDs()
-    HealBot_Globals.CatchAltBuffIDs={}
-    local hbClassHoTwatch=HealBot_Globals.WatchHoT
-    for xClass,_  in pairs(hbClassHoTwatch) do
-        local HealBot_configClassHoTClass=HealBot_Globals.WatchHoT[xClass]
-        for sName,x  in pairs(HealBot_configClassHoTClass) do
-            local name, _, _, _, _, _, spellId = GetSpellInfo(sName)
-            if name then
-                HealBot_Globals.CatchAltBuffIDs[name]=true
-            else
-                HealBot_Globals.CatchAltBuffIDs[sName]=true
-            end
-        end
-    end
-end
-
 local function HealBot_Reset_AutoUpdateSpellIDs()
-    HealBot_Reset_AutoUpdateBuffIDs()
     HealBot_Reset_AutoUpdateDebuffIDs()
     HealBot_AddChat("Automatic Spell ID's Turned On")
 end
@@ -588,6 +572,9 @@ local function HealBot_SlashCmd(cmd)
         HealBot_Reset_Buffs()
     elseif (HBcmd=="ricons") then
         HealBot_Reset_Icons()
+    elseif (HBcmd=="cs") then
+        HealBot_CheckAllSkins()
+        HealBot_AddChat(HEALBOT_CHAT_ADDONID..HEALBOT_SKIN_CHECK_DONE)
     elseif (HBcmd=="disable") then
         HealBot_Options_DisableHealBotOpt:SetChecked(1)
         HealBot_Options_DisableHealBot(1)
@@ -838,15 +825,22 @@ local function HealBot_configClassHoT()
     for xClass,_  in pairs(hbClassHoTwatch) do
         local HealBot_configClassHoTClass=HealBot_Globals.WatchHoT[xClass]
         for sName,x  in pairs(HealBot_configClassHoTClass) do
+            if GetSpellInfo(sName) then
+                sName=GetSpellInfo(sName)
+            end
+            local giftNaaru=false
+            if sName==HealBot_Spell_IDs[HEALBOT_GIFT_OF_THE_NAARU] or (HealBot_Spell_Names[sName] or 0)==HEALBOT_GIFT_OF_THE_NAARU then
+                giftNaaru=true
+            end
             if xClass=="ALL" and x==3 then
                 HealBot_Watch_HoT[sName]="C"
-                if sName==HealBot_Spell_IDs[HEALBOT_GIFT_OF_THE_NAARU] and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="C" end
+                if giftNaaru and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="C" end
             elseif (x==4) or (x==3 and xClass==HealBot_Data["PCLASSTRIM"]) then
                 HealBot_Watch_HoT[sName]="A"
-                if sName==HealBot_Spell_IDs[HEALBOT_GIFT_OF_THE_NAARU] and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="A" end
+                if giftNaaru and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="A" end
             elseif x==2 then 
                 HealBot_Watch_HoT[sName]="S"
-                if sName==HealBot_Spell_IDs[HEALBOT_GIFT_OF_THE_NAARU] and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="S" end
+                if giftNaaru and HealBot_Data["PRACE_EN"]=="Draenei" then HealBot_Watch_HoT[sName]="S" end
             else
                 HealBot_Watch_HoT[sName]="H"
             end
@@ -972,20 +966,22 @@ local hbStanceBuffs = {}
 local function HealBot_setHbStanceBuffs()
     if HealBot_Data["PCLASSTRIM"]=="PALA" then
         hbStanceBuffs = {}
-        local i = GetSpecialization()
-        local specID = 0
-        if i then specID = GetSpecializationInfo(i,false,false) end
-        if specID==65 then
-            hbStanceBuffs[HEALBOT_SEAL_OF_COMMAND]=1
-            hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=2
-        elseif specID==66 then
-            hbStanceBuffs[HEALBOT_SEAL_OF_RIGHTEOUSNESS]=1
-            hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=2
-        else
-            hbStanceBuffs[HEALBOT_SEAL_OF_TRUTH]=1
-            hbStanceBuffs[HEALBOT_SEAL_OF_RIGHTEOUSNESS]=2
-            hbStanceBuffs[HEALBOT_SEAL_OF_JUSTICE]=3
-            hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=4
+        if HEALBOT_GAME_VERSION>7 then
+            local i = GetSpecialization()
+            local specID = 0
+            if i then specID = GetSpecializationInfo(i,false,false) end
+            if specID==65 then
+                hbStanceBuffs[HEALBOT_SEAL_OF_COMMAND]=1
+                hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=2
+            elseif specID==66 then
+                hbStanceBuffs[HEALBOT_SEAL_OF_RIGHTEOUSNESS]=1
+                hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=2
+            else
+                hbStanceBuffs[HEALBOT_SEAL_OF_TRUTH]=1
+                hbStanceBuffs[HEALBOT_SEAL_OF_RIGHTEOUSNESS]=2
+                hbStanceBuffs[HEALBOT_SEAL_OF_JUSTICE]=3
+                hbStanceBuffs[HEALBOT_SEAL_OF_INSIGHT]=4
+            end
         end
     elseif HealBot_Data["PCLASSTRIM"]=="MONK" then
         hbStanceBuffs = {
@@ -1118,12 +1114,17 @@ local function HealBot_DoReset_Spells(pClassTrim)
         HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HEALBOT_FLASH_OF_LIGHT))
         HealBot_Action_SetSpell("ENABLED", "ShiftRight", GetSpellInfo(HEALBOT_LIGHT_OF_DAWN))
         HealBot_Action_SetSpell("ENABLED", "CtrlLeft", GetSpellInfo(HEALBOT_CLEANSE))
-        HealBot_Action_SetSpell("ENABLED", "Right", GetSpellInfo(HEALBOT_HOLY_LIGHT))
         HealBot_Action_SetSpell("ENABLED", "Middle", GetSpellInfo(HEALBOT_WORD_OF_GLORY))
         HealBot_Action_SetSpell("ENABLED", "ShiftMiddle", GetSpellInfo(HEALBOT_HOLY_RADIANCE))
         HealBot_Action_SetSpell("DISABLED", "Left", GetSpellInfo(HEALBOT_FLASH_OF_LIGHT))
-        HealBot_Action_SetSpell("DISABLED", "Right", GetSpellInfo(HEALBOT_HOLY_LIGHT))
         HealBot_Action_SetSpell("DISABLED", "Middle", GetSpellInfo(HEALBOT_WORD_OF_GLORY))
+        if HEALBOT_GAME_VERSION>7 then
+            HealBot_Action_SetSpell("ENABLED", "Right", GetSpellInfo(HEALBOT_HOLY_LIGHT))
+            HealBot_Action_SetSpell("DISABLED", "Right", GetSpellInfo(HEALBOT_HOLY_LIGHT))
+        else
+            HealBot_Action_SetSpell("ENABLED", "Right", GetSpellInfo(HBC_HOLY_LIGHT))
+            HealBot_Action_SetSpell("DISABLED", "Right", GetSpellInfo(HBC_HOLY_LIGHT))
+        end
     elseif pClassTrim=="PRIE" then
         HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HEALBOT_FLASH_HEAL))
         HealBot_Action_SetSpell("ENABLED", "ShiftLeft", GetSpellInfo(HEALBOT_BINDING_HEAL))
@@ -1144,16 +1145,21 @@ local function HealBot_DoReset_Spells(pClassTrim)
         else
             x=GetSpellInfo(HEALBOT_CLEANSE_SPIRIT);
         end
-        HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HEALBOT_HEALING_WAVE))
         HealBot_Action_SetSpell("ENABLED", "Right", GetSpellInfo(HEALBOT_HEALING_SURGE))
         HealBot_Action_SetSpell("ENABLED", "Middle", GetSpellInfo(HEALBOT_HEALING_RAIN))
         HealBot_Action_SetSpell("ENABLED", "CtrlLeft", x)
         HealBot_Action_SetSpell("ENABLED", "CtrlRight", x)
         HealBot_Action_SetSpell("ENABLED", "ShiftLeft", GetSpellInfo(HEALBOT_CHAIN_HEAL))
         HealBot_Action_SetSpell("ENABLED", "ShiftMiddle", GetSpellInfo(HEALBOT_HEALING_STREAM_TOTEM))
-        HealBot_Action_SetSpell("DISABLED", "Left", GetSpellInfo(HEALBOT_HEALING_WAVE))
         HealBot_Action_SetSpell("DISABLED", "Right", GetSpellInfo(HEALBOT_HEALING_SURGE))
         HealBot_Action_SetSpell("DISABLED", "Middle", GetSpellInfo(HEALBOT_HEALING_RAIN))
+        if HEALBOT_GAME_VERSION>7 then
+            HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HEALBOT_HEALING_WAVE))
+            HealBot_Action_SetSpell("DISABLED", "Left", GetSpellInfo(HEALBOT_HEALING_WAVE))
+        else
+            HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HBC_HEALING_WAVE))
+            HealBot_Action_SetSpell("DISABLED", "Left", GetSpellInfo(HBC_HEALING_WAVE))
+        end
     elseif pClassTrim=="MAGE" then
         HealBot_Action_SetSpell("ENABLED", "Left", GetSpellInfo(HEALBOT_REMOVE_CURSE))
     end
@@ -1253,19 +1259,20 @@ local function HealBot_DoReset_Buffs(pClassTrim)
         if HealBot_KnownSpell(HEALBOT_BLESSING_OF_MIGHT) then
             HealBot_Config_Buffs.HealBotBuffText[i]=HealBot_Spell_IDs[HEALBOT_BLESSING_OF_MIGHT].name
             i=i+1
+        elseif HealBot_KnownSpell(HBC_BLESSING_OF_MIGHT) then
+            HealBot_Config_Buffs.HealBotBuffText[i]=HealBot_Spell_IDs[HBC_BLESSING_OF_MIGHT].name
+            i=i+1
         end
         if HealBot_KnownSpell(HEALBOT_BLESSING_OF_WISDOM) then
             HealBot_Config_Buffs.HealBotBuffText[i]=HealBot_Spell_IDs[HEALBOT_BLESSING_OF_WISDOM].name
+        elseif HealBot_KnownSpell(HBC_BLESSING_OF_WISDOM) then
+            HealBot_Config_Buffs.HealBotBuffText[i]=HealBot_Spell_IDs[HBC_BLESSING_OF_WISDOM].name
         end
     elseif pClassTrim=="PRIE" then
-        if HEALBOT_GAME_VERSION>7 then
-            if HealBot_KnownSpell(HEALBOT_POWER_WORD_FORTITUDE) then
-                HealBot_Config_Buffs.HealBotBuffText[1]=HealBot_Spell_IDs[HEALBOT_POWER_WORD_FORTITUDE].name
-            end
-        else
-            if HealBot_KnownSpell(HEALBOT_POWER_WORD_FORTITUDE_CLASSIC) then
-                HealBot_Config_Buffs.HealBotBuffText[1]=HealBot_Spell_IDs[HEALBOT_POWER_WORD_FORTITUDE_CLASSIC].name
-            end
+        if HealBot_KnownSpell(HEALBOT_POWER_WORD_FORTITUDE) then
+            HealBot_Config_Buffs.HealBotBuffText[1]=HealBot_Spell_IDs[HEALBOT_POWER_WORD_FORTITUDE].name
+        elseif HealBot_KnownSpell(HBC_POWER_WORD_FORTITUDE) then
+            HealBot_Config_Buffs.HealBotBuffText[1]=HealBot_Spell_IDs[HBC_POWER_WORD_FORTITUDE].name
         end
         if HealBot_KnownSpell(HEALBOT_FEAR_WARD) then
             HealBot_Config_Buffs.HealBotBuffText[2]=HealBot_Spell_IDs[HEALBOT_FEAR_WARD].name
@@ -1567,8 +1574,13 @@ end
 function HealBot_HealsInUpdate(button)
     button.health.updincoming=false
     local ebubar2 = _G["HealBot_Action_HealUnit"..button.id.."Bar2"]
-    if HEALBOT_GAME_VERSION>7 and UnitExists(button.unit) and button.health.current<button.health.max and button.status.current>3 and button.status.current<9 and button.status.range>0 then
-        local healin=(UnitGetIncomingHeals(button.unit) or 0)
+    if button.health.current<button.health.max and button.status.current>3 and button.status.current<9 and button.status.range>0 and UnitExists(button.unit) then
+        local healin=0
+        if HEALBOT_GAME_VERSION>7 then
+            healin=(UnitGetIncomingHeals(button.unit) or 0)
+        elseif libCHC then
+            healin = (libCHC:GetHealAmount(button.guid, libCHC.ALL_HEALS) or 0) * (libCHC:GetHealModifier(button.guid) or 1)
+        end
         if button.health.incoming~=healin or (healin==0 and ebubar2:GetValue()>0) then
             button.health.incoming=healin
             HealBot_Action_setHealthText(button)
@@ -1584,11 +1596,29 @@ function HealBot_HealsInUpdate(button)
   --HealBot_setCall("HealBot_HealsInUpdate")
 end
 
+function HealBotClassic_HealsInUpdate(arg1, arg2, arg3, arg4, arg5, ...)
+    for i=1, select("#", ...) do
+        local targetGUID = select(i, ...)
+        if HealBot_UnitData[targetGUID] then
+            xUnit=HealBot_UnitData[targetGUID]["UNIT"]
+            local _,_,xButton = HealBot_UnitID(xUnit)
+            if xButton then
+                HealBot_HealsInUpdate(xButton)
+            end
+        end
+    end
+end
+
 function HealBot_AbsorbsUpdate(button)
     button.health.updabsorbs=false
     local ebubar6 = _G["HealBot_Action_HealUnit"..button.id.."Bar6"]
-    if HEALBOT_GAME_VERSION>7 and UnitExists(button.unit) and button.health.current<button.health.max and button.status.current>3 and button.status.current<9 and button.status.range>0 then
-        local absorb=(UnitGetTotalAbsorbs(button.unit) or 0)
+    if button.health.current<button.health.max and button.status.current>3 and button.status.current<9 and button.status.range>0 and UnitExists(button.unit) then
+        local absorb=0
+        if HEALBOT_GAME_VERSION>7 then
+            absorb=(UnitGetTotalAbsorbs(button.unit) or 0)
+        elseif 1==0 then --libCHC then
+            absorb = (libCHC:GetHealAmount(button.guid, libCHC.ABSORB_SHIELDS) or 0)
+        end
         if button.health.absorbs~=absorb or (absorb==0 and ebubar6:GetValue()>0) then
             button.health.absorbs=absorb
             HealBot_Action_setHealthText(button)
@@ -1602,6 +1632,19 @@ function HealBot_AbsorbsUpdate(button)
         HealBot_Action_HBText(button)
     end
   --HealBot_setCall("HealBot_AbsorbsUpdate")
+end
+
+function HealBotClassic_AbsorbsUpdate(arg1, arg2, arg3, arg4, arg5, ...)
+    for i=1, select("#", ...) do
+        local targetGUID = select(i, ...)
+        if HealBot_UnitData[targetGUID] then
+            xUnit=HealBot_UnitData[targetGUID]["UNIT"]
+            local _,_,xButton = HealBot_UnitID(xUnit)
+            if xButton then
+                HealBot_AbsorbsUpdate(xButton)
+            end
+        end
+    end
 end
 
 function HealBot_Player_CheckTime(button)
@@ -1884,7 +1927,6 @@ local HealBot_Options_Timer={}
 function HealBot_setOptions_Timer(value)
     HealBot_luVars["HealBot_Options_Timer"]=true
     HealBot_Options_Timer[value]=true
-    HealBot_Timers["HB1Th"]=(HealBot_Globals.RangeCheckFreq*0.5)
   --HealBot_setCall("HealBot_setOptions_Timer")
   --HealBot_setCall("HealBot_setOptions_Timer-"..value)
 end
@@ -2631,7 +2673,7 @@ local function HealBot_Include_Skin(skinName)
     end
 end
 
-local function HealBot_Update_Skins()
+local function HealBot_Update_Skins(forceCheck)
     if HealBot_Globals.LastVersionSkinUpdate then
         HealBot_Globals.LastVersionSkinUpdate=nil
     end
@@ -2663,7 +2705,7 @@ local function HealBot_Update_Skins()
     if tonumber(tMajor)<8 then
         HealBot_Options_SetDefaults();
         HealBot_ReloadUI()
-    elseif HealBot_Config.LastVersionSkinUpdate~=HEALBOT_VERSION then   
+    elseif HealBot_Config.LastVersionSkinUpdate~=HEALBOT_VERSION_SC or forceCheck then   
         for x in pairs (Healbot_Config_Skins.Skins) do
             HealBot_Check_Skin(Healbot_Config_Skins.Skins[x])
             if tonumber(tMajor)==8 then
@@ -2746,6 +2788,9 @@ local function HealBot_Update_Skins()
                 if tonumber(tHealbot)<3 then
                     HealBot_setOptions_Timer(7990)
                 end
+                if tonumber(tHealbot)<5 then
+                    HealBot_Globals.CatchAltBuffIDs=nil
+                end
             end
         end
         if HealBot_Globals.mapScale then HealBot_Globals.mapScale=nil end
@@ -2769,9 +2814,12 @@ local function HealBot_Update_Skins()
         HealBot_Update_BuffsForSpec()
     end
     
-    HealBot_Config.LastVersionSkinUpdate=HEALBOT_VERSION
-    HealBot_Config.Version=HEALBOT_VERSION
+    HealBot_Config.LastVersionSkinUpdate=HEALBOT_VERSION_SC
   --HealBot_setCall("HealBot_Update_Skins")
+end
+
+function HealBot_CheckAllSkins()
+    HealBot_Update_Skins(true)
 end
 
 local function HealBot_VersionUpdate_Spells()
@@ -3042,9 +3090,6 @@ local function HealBot_OnEvent_VariablesLoaded(self)
     HealBot_setIconUpdateInterval()
     HealBot_setTooltipUpdateInterval()
     HealBot_Action_ResetSkin("init")
-    if HealBot_Globals.CatchAltBuffIDs["init"] then
-        HealBot_Reset_AutoUpdateBuffIDs()
-    end
     if HealBot_Globals.CatchAltDebuffIDs["init"] then
         HealBot_Reset_AutoUpdateDebuffIDs()
     end
@@ -3204,6 +3249,7 @@ function HealBot_setHighlightTargetBar()
 end
 
 local function HealBot_Options_Update()
+    HealBot_Timers["HB1Th"]=(HealBot_Globals.RangeCheckFreq*0.4)
     if HealBot_Options_Timer[150] then
         HealBot_Action_ResetSkin("init")
         HealBot_Options_Timer[150]=nil
@@ -3281,6 +3327,9 @@ local function HealBot_Options_Update()
     elseif HealBot_Options_Timer[160] then
         HealBot_Options_SetSkinBars()
         HealBot_Options_Timer[160]=nil
+    elseif HealBot_Options_Timer[169] then
+        HealBot_Options_BuffResetList()
+        HealBot_Options_Timer[169]=nil
     elseif HealBot_Options_Timer[170] then
         HealBot_configClassHoT()
         HealBot_Options_Timer[170]=nil
@@ -3857,6 +3906,9 @@ end
 
 local function HealBot_Not_Fighting()
     HealBot_Data["UILOCK"]=false
+    if HEALBOT_GAME_VERSION==1 then
+        HealBot_RecalcParty(0)
+    end
     HealBot_RecalcParty(5);
     if HealBot_luVars["SoftResetAfterCombat"] then
         HealBot_luVars["SoftResetAfterCombat"]=false
@@ -4589,59 +4641,6 @@ local function HealBot_HasBuffTypes(spellName, pBuffTypes)
     return hasBuffTypes
 end
 
-local function HealBot_AutoUpdateCustomBuffLoop(button, name, spellId, class)
-    local endLoop=false
-    local HealBot_configClassHoTClass=HealBot_Globals.WatchHoT[class]
-    for bID,x  in pairs(HealBot_configClassHoTClass) do
-        if (GetSpellInfo(bID) and GetSpellInfo(bID)==name) or (not GetSpellInfo(bID) and bID==name) then
-            local oldId=bID
-            if bID==name then oldId=name end
-            HealBot_Globals.WatchHoT[class][spellId]=x
-            if HealBot_Globals.IgnoreCustomBuff[oldId] then
-                HealBot_Globals.IgnoreCustomBuff[spellId]=HealBot_Options_copyTable(HealBot_Globals.IgnoreCustomBuff[oldId])
-            end
-            if HealBot_Globals.HealBot_Custom_Buffs[oldId] then
-                HealBot_Globals.HealBot_Custom_Buffs[spellId]=HealBot_Globals.HealBot_Custom_Buffs[oldId]
-            end
-            if HealBot_Globals.CustomBuffBarColour[oldId] then
-                HealBot_Globals.CustomBuffBarColour[spellId]=HealBot_Options_copyTable(HealBot_Globals.CustomBuffBarColour[oldId])
-            end
-            if HealBot_Globals.HealBot_Custom_Buffs_ShowBarCol[oldId] then
-                HealBot_Globals.HealBot_Custom_Buffs_ShowBarCol[spellId]=HealBot_Globals.HealBot_Custom_Buffs_ShowBarCol[oldId]
-            end
-            HealBot_Options_DeleteBuffHoT(class, oldId)
-            button.update.buff=true
-            button.status.update=true
-            endLoop=true
-            break
-        end
-    end
-    return endLoop
-end
-
-local function HealBot_AutoUpdateCustomBuff(button, name, spellId, unitCaster)
-    if HealBot_Globals.CatchAltBuffIDs[name] then
-        HealBot_Globals.CatchAltBuffIDs[name]=nil
-        local uClass=false
-        if unitCaster then 
-            _,uClass=UnitClass(unitCaster) 
-            uClass=strsub(uClass,1,4)
-        end
-        if uClass and HealBot_Globals.WatchHoT[uClass] then
-            local endLoop=HealBot_AutoUpdateCustomBuffLoop(button, name, spellId, uClass)
-            if not endLoop then
-                endLoop=HealBot_AutoUpdateCustomBuffLoop(button, name, spellId, "ALL")
-            end
-        else
-            local hbClassHoTwatch=HealBot_Globals.WatchHoT
-            for xClass,_  in pairs(hbClassHoTwatch) do
-                local endLoop=HealBot_AutoUpdateCustomBuffLoop(button, name, spellId, xClass)
-                if endLoop then break end
-            end
-        end
-    end
-end
-
 local hbExcludeSpells = { [67358]="Rejuvenating",
                           [58597]="Sacred Shield",
                           --[65148]="Sacred Shield",
@@ -4825,17 +4824,13 @@ local function HealBot_CheckUnitBuffs(button)
                     z = z +1
                     if cBuffs then 
                         if unitCaster and expirationTime and not hbExcludeSpells[spellId] then
-                            local y=HealBot_Watch_HoT[spellId] or "nil"
+                            local y=HealBot_Watch_HoT[spellId] or HealBot_Watch_HoT[name] or "nil"
+                           -- HealBot_AddDebug("y="..y.." - name="..name)
                             if (y=="A" or (y=="S" and unitCaster=="player") or (y=="C" and HealBot_Data["PCLASSTRIM"]==uClassTrim)) then
                                 if HealBot_SetBuffIcon(button, name, texture, count, expirationTime, unitCaster, spellId, cIcons) then
                                     curBuffName=HEALBOT_CUSTOM_en
                                     button.aura.buff.id=spellId
                                 end
-                                if HealBot_Globals.CatchAltBuffIDs[name] then
-                                    HealBot_Globals.CatchAltBuffIDs[name]=nil
-                                end
-                            elseif y=="nil" then
-                                HealBot_AutoUpdateCustomBuff(button, name, spellId, unitCaster)
                             end
                         end
                     end
@@ -5403,8 +5398,10 @@ end
 
 function HealBot_UnRegister_Aggro()
     HealBot:UnregisterEvent("UNIT_COMBAT")
-    HealBot:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE")
-    HealBot:UnregisterEvent("UNIT_THREAT_LIST_UPDATE")
+    if HEALBOT_GAME_VERSION>7 then
+        HealBot:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+        HealBot:UnregisterEvent("UNIT_THREAT_LIST_UPDATE")
+    end
     HealBot_EndAggro() 
   --HealBot_setCall("HealBot_UnRegister_Aggro")
 end
@@ -5412,12 +5409,36 @@ end
 function HealBot_Register_IncHeals()
     if HEALBOT_GAME_VERSION>7 then
         HealBot:RegisterEvent("UNIT_HEAL_PREDICTION")
+    else
+        libCHC = LibStub("LibClassicHealComm-1.0", true)
+        
+        libCHC.RegisterCallback(HEALBOT_HEALBOT, "HealComm_HealStarted", 
+            function(event, casterGUID, spellID, healType, endTime, ...) 
+            HealBotClassic_HealsInUpdate(event, casterGUID, spellID, healType, endTime, ...) end)
+            
+        libCHC.RegisterCallback(HEALBOT_HEALBOT, "HealComm_HealUpdated", 
+            function(event, casterGUID, spellID, healType, endTime, ...) 
+            HealBotClassic_HealsInUpdate(event, casterGUID, spellID, healType, endTime, ...) end)
+            
+        libCHC.RegisterCallback(HEALBOT_HEALBOT, "HealComm_HealDelayed", 
+            function(event, casterGUID, spellID, healType, endTime, ...) 
+            HealBotClassic_HealsInUpdate(event, casterGUID, spellID, healType, endTime, ...) end)
+            
+        libCHC.RegisterCallback(HEALBOT_HEALBOT, "HealComm_HealStopped", 
+            function(event, casterGUID, spellID, healType, interrupted, ...) 
+            HealBotClassic_HealsInUpdate(event, casterGUID, spellID, healType, interrupted, ...) end)
+            
+        --libCHC.RegisterCallback(HEALBOT_HEALBOT, "HealComm_ABSORB-EVENT", 
+        --    function(event, casterGUID, spellID, ???, ???, ...) 
+        --    HealBotClassic_AbsorbsUpdate(event, casterGUID, spellID, ???, ???, ...) end)
     end
   --HealBot_setCall("HealBot_Register_IncHeals")
 end
 
 function HealBot_UnRegister_IncHeals()
-    HealBot:UnregisterEvent("UNIT_HEAL_PREDICTION")
+    if HEALBOT_GAME_VERSION>7 then
+        HealBot:UnregisterEvent("UNIT_HEAL_PREDICTION")
+    end
     HealBot_IncHeals_ClearAll()
   --HealBot_setCall("HealBot_UnRegister_IncHeals")
 end
@@ -6485,6 +6506,8 @@ function HealBot_InitSpells()
     elseif HealBot_Data["PCLASSTRIM"]==HealBot_Class_En[HEALBOT_PALADIN] then
         if HealBot_KnownSpell(HEALBOT_HOLY_LIGHT) then
             HealBot_SmartCast_Spells[HEALBOT_HOLY_LIGHT]="L"
+        elseif HealBot_KnownSpell(HBC_HOLY_LIGHT) then
+            HealBot_SmartCast_Spells[HBC_HOLY_LIGHT]="L"
         end
         if HealBot_KnownSpell(HEALBOT_FLASH_OF_LIGHT) then
             HealBot_SmartCast_Spells[HEALBOT_FLASH_OF_LIGHT]="S"
@@ -6492,9 +6515,13 @@ function HealBot_InitSpells()
     elseif HealBot_Data["PCLASSTRIM"]==HealBot_Class_En[HEALBOT_SHAMAN] then
         if HealBot_KnownSpell(HEALBOT_HEALING_SURGE) then
             HealBot_SmartCast_Spells[HEALBOT_HEALING_SURGE]="S"
+        elseif HealBot_KnownSpell(HBC_LESSER_HEALING_WAVE) then
+            HealBot_SmartCast_Spells[HBC_LESSER_HEALING_WAVE]="S"
         end
         if HealBot_KnownSpell(HEALBOT_HEALING_WAVE) then
             HealBot_SmartCast_Spells[HEALBOT_HEALING_WAVE]="L"
+        elseif HealBot_KnownSpell(HBC_HEALING_WAVE) then
+            HealBot_SmartCast_Spells[HBC_HEALING_WAVE]="L"
         end
     elseif HealBot_Data["PCLASSTRIM"]==HealBot_Class_En[HEALBOT_MONK] then
         if HealBot_KnownSpell(HEALBOT_ENVELOPING_MIST) then
@@ -6905,7 +6932,6 @@ function HealBot_Reset_Icons()
     HealBot_Options_ResetDoInittab(3)
     HealBot_Options_Init(3)
     HealBot_Options_ComboClass_Text()
-    HealBot_Reset_AutoUpdateBuffIDs()
     HealBot_AddChat(HEALBOT_CHAT_ADDONID..HEALBOT_CHAT_CONFIRMICONRESET)
   --HealBot_setCall("HealBot_Reset_Icons")
 end

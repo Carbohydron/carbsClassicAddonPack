@@ -101,6 +101,9 @@ end
 
 do
 	local function submit()
+        SortAuctionClearSort(get_state().params.type)
+        SortAuctionItems(get_state().params.type, 'duration')
+        SortAuctionItems(get_state().params.type, 'duration')
 		if get_state().params.type == 'bidder' and not AuctionFrame.gotBids then
             GetBidderAuctionItems()
             AuctionFrame.gotBids = 1
@@ -128,7 +131,7 @@ do
                 blizzard_query.usable,
                 blizzard_query.quality,
                 false, -- getAll
-                blizzard_query.exact,
+                blizzard_query.class ~= 1 and blizzard_query.class ~= 2 and blizzard_query.exact, -- Doesn't work for suffix items
                 category_filter
 			)
 		end
@@ -167,11 +170,7 @@ function scan_page(i)
 
 		history.process_auction(auction_info)
 
-		if (get_state().params.auto_buy_validator or pass)(auction_info) then
-			local send_signal, signal_received = aux.signal()
-			aux.when(signal_received, scan_page, i)
-			return aux.place_bid(auction_info.query_type, auction_info.index, auction_info.buyout_price, send_signal)
-		elseif not get_query().validator or get_query().validator(auction_info) then
+		if not get_query().validator or get_query().validator(auction_info) then
 			do (get_state().params.on_auction or pass)(auction_info) end
 		end
 	end

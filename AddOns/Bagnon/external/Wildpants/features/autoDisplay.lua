@@ -30,11 +30,14 @@ function AutoDisplay:RegisterGameEvents()
 	self:RegisterDisplayEvents('displayTrade', 'TRADE_SHOW', 'TRADE_CLOSED')
 
 	self:RegisterDisplayEvents('closeCombat', nil, 'PLAYER_REGEN_DISABLED')
-	self:RegisterDisplayEvents('closeVehicle', nil, 'UNIT_ENTERED_VEHICLE')
 	self:RegisterDisplayEvents('closeVendor', nil, 'MERCHANT_CLOSED')
 
 	if CanGuildBankRepair then
 		self:RegisterDisplayEvents('displayGuild', 'GUILDBANKFRAME_OPENED', 'GUILDBANKFRAME_CLOSED')
+	end
+
+	if HasVehicleActionBar then
+		self:RegisterDisplayEvents('closeVehicle', nil, 'UNIT_ENTERED_VEHICLE')
 	end
 
 	if C_ItemSocketInfo then

@@ -1,7 +1,7 @@
 local name, GatherLite = ...
 
 GatherLite.name = name;
-GatherLite.version = "1.1.2-classic";
+GatherLite.version = "1.1.5";
 
 GatherLite.isClassic = select(4, GetBuildInfo()) < 20000;
 
@@ -60,7 +60,7 @@ else
         [GetSpellInfo(22810)] = "treasure", -- Opening - No Text()
         [GetSpellInfo(73979)] = "artifacts", -- Searching for Artifacts(Apprentice)
     };
-end;
+end ;
 
 GatherLite.classColours = {
     DEATHKNIGHT = { r = 0.77, g = 0.12, b = 0.23, fs = '|cffC41F3B' },
@@ -78,7 +78,8 @@ GatherLite.classColours = {
 
 GatherLite.defaultConfigs = {
     enabled = true,
-    debugging = false,
+    minimapButton = true,
+    debugging2 = false,
     mining = true,
     fish = true,
     herbalism = true,

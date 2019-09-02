@@ -45,7 +45,6 @@ HealBot_Font_Outline={
 };
 
 HealBot_ConfigDefaults = {
-  Version = HEALBOT_VERSION,
   LastVersionSkinUpdate=HealBot_lastVerSkinUpdate,
   CurrentSpec=9,
   HealBot_BuffWatchGUID={},
@@ -238,7 +237,6 @@ function HealBot_Data_InitVars()
     HealBot_GlobalsDefaults = {
         Debug01=false, -- Currently not used
         VersionResetDone={},
-        CatchAltBuffIDs={["init"]=true},
         CatchAltDebuffIDs={["init"]=true},
         CureCustomDefaultCastBy="ALL",
         TopRole="TANK",

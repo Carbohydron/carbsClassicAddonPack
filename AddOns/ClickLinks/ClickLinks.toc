@@ -2,5 +2,5 @@
 ## Title: ClickLinks
 ## Author: tannerng
 ## Notes: Makes URLs clickable
-## Version: 1.0.7
+## Version: 1.0.8
 ClickLinks.lua

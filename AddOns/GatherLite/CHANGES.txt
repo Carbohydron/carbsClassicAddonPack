@@ -1,10 +1,14 @@
-lightweight tag c3de5460f03f97df8cbcb8b66c540d4f7b168e54 1.1.2-classic
+lightweight tag 80b878e25134efdb25c47ce8eae48112c2f92a6a 1.1.5
 Author:	Wuild <wuildz@gmail.com>
-Date:	Fri Aug 30 22:13:03 2019 +0200
+Date:	Sun Sep 1 20:06:22 2019 +0200
 
-commit c3de5460f03f97df8cbcb8b66c540d4f7b168e54
+commit 80b878e25134efdb25c47ce8eae48112c2f92a6a
 Author: Wuild <wuildz@gmail.com>
-Date:   Fri Aug 30 22:13:03 2019 +0200
+Date:   Sun Sep 1 20:06:22 2019 +0200
 
-    added p2p functions
+    fixed tooltip and map
+    
+    fixed an error where the tooltip on hovering would throw lua errors.
+    fixed a bug with the world map when opening it to often would crash it and
+    fixed a bug where quest items would be marked as treasures.
 

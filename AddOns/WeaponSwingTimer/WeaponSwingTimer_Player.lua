@@ -134,7 +134,8 @@ addon_data.player.OnCombatLogUnfiltered = function(combat_info)
             local miss_type, is_offhand = select(12, unpack(combat_info))
             addon_data.core.MissHandler("player", miss_type, is_offhand)
         elseif (event == "SPELL_DAMAGE") or (event == "SPELL_MISSED") then
-            addon_data.core.SpellHandler("player", spell_name)
+            local _, _, _, _, _, _, spell_id = GetSpellInfo(spell_name)
+            addon_data.core.SpellHandler("player", spell_id)
         end
     end
     
