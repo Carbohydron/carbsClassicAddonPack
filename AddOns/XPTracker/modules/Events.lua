@@ -26,4 +26,3 @@ end
 function Events:PLAYER_UPDATE_RESTING()
   XPTracker:UpdateRestingInfo()
 end
-

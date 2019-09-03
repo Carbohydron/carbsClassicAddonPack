@@ -96,12 +96,20 @@ function TextInfo:DisplayLevelAtRateText()
   local dbInfo = XPTracker.db.char
   local trackingInfo = dbInfo.TrackingInfo
   if trackingInfo.CurrentXPPH ~= 0 then
-    local hourPercent = math.floor((dbInfo.MaxXP - dbInfo.PlayerXP) / trackingInfo.CurrentXPPH * 100) / 100
-    trackingInfo.TimeToLevelAtRate = hourPercent * 60 .. " minutes"
+    TextInfo:GetLevelAtRateTime(dbInfo, trackingInfo)
   else
     trackingInfo.TimeToLevelAtRate = '...'
   end
   XPTracker.LevelAtRateText:SetText("Time to Level: " .. trackingInfo.TimeToLevelAtRate)
+end
+
+function TextInfo:GetLevelAtRateTime(dbInfo, trackingInfo)
+  local hourPercent = math.floor((dbInfo.MaxXP - dbInfo.PlayerXP) / trackingInfo.CurrentXPPH * 100) / 100
+  if hourPercent < 1 then
+    trackingInfo.TimeToLevelAtRate = hourPercent * 60 .. " minutes"
+  elseif hourPercent >= 1 then
+    trackingInfo.TimeToLevelAtRate = hourPercent .. " hours"
+  end
 end
 
 function TextInfo:DisplayElapsedTime(timeElapsed)

@@ -290,8 +290,8 @@ end
 
 function XPTracker:CleanupOnExit()
   XPTracker:CancelTimer(XPTracker.Tracker)
+  if db.char.TrackingXP then XPTracker:EndTracking() end
   db.char.TrackingXP = false
-  XPTracker:EndTracking()
   XPTracker:HandleHangingPauseOnStop()
   XPTracker:TogglePauseButton()
   Widgets:UpdateTrackingButtonText(XPTracker.TrackingButton.Text)
@@ -316,7 +316,9 @@ end
 -- 2) Add localization
 -- 3) General cleanup - upvalues etc
 -- 4) Hide rested info when not rested
--- 5) Render time to level in hours when over 60 minutes
+
+-- BUGS
+-- seems to reset to half size when you log out with both sections open - sometimes
 
 -- Maybe:
 -- 1) Hide rested XP stuff when not rested?
