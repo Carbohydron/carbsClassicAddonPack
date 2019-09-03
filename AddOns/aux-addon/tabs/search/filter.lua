@@ -216,7 +216,7 @@ function formatted_post_filter(components)
 		local component_text = filter_color(component[2])
 		if component[1] == 'operator' and component[2] ~= 'not' then
 			component_text = component_text .. filter_color(tonumber(component[3]) or '')
-			tinsert(stack, component[3])
+			tinsert(stack, component[3] or '*')
 		elseif component[1] == 'filter' then
 			local parameter = component[3]
 			if parameter then
@@ -227,7 +227,7 @@ function formatted_post_filter(components)
 				end
 				component_text = component_text .. filter_color(': ') .. parameter
 			end
-			while #stack > 0 and stack[#stack] do
+			while #stack > 0 and stack[#stack] and stack[#stack] ~= '*' do
 				local top = tremove(stack)
 				if tonumber(top) and top > 1 then
 					tinsert(stack, top - 1)
@@ -245,9 +245,8 @@ function data_link(id, str)
 	return format('<a href="%s">%s</a>', id, str)
 end
 
-function data_link_click()
-	local button = arg3
-	local index = tonumber(arg1)
+function data_link_click(_, link, _, button)
+	local index = tonumber(link)
 	if button == 'LeftButton' then
 		post_filter_index = index
 	elseif button == 'RightButton' and index > 0 then

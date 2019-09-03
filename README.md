@@ -15,6 +15,7 @@ In game, you may want to disable certain addons that you do not care for.
 
 Non-healers:
 - Disable Healbot
+- Disable HealComm
 
 Non-gatherers:
 - Disable GatherLite

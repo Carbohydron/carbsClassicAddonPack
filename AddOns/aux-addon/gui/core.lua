@@ -325,8 +325,8 @@ function M.editbox(parent)
     editbox:SetScript('OnChar', function(self) (self.char or pass)(self) end)
     do
         local last_click = T.map('t', 0)
-        editbox:SetScript('OnMouseDown', function(self, arg1)
-	        if arg1 == 'RightButton' then
+        editbox:SetScript('OnMouseDown', function(self, button)
+	        if button == 'RightButton' then
                 self:SetText('')
                 self:ClearFocus()
                 self.block_focus = true
@@ -443,6 +443,7 @@ function M.label(parent, size)
     local label = parent:CreateFontString()
     label:SetFont(font, size or font_size.small)
     label:SetTextColor(aux.color.label.enabled())
+    label:SetWordWrap(false)
     return label
 end
 

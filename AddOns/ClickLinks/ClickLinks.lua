@@ -2,17 +2,20 @@
 -- Name: Click Links
 -- Author: tannerng
 -- Description: Makes URLs clickable
--- Version: 1.0.7
+-- Version: 1.0.8
 
 -- regex is like titanforging
 URL_PATTERNS = {
     -- X://Y most urls
     "^(%a[%w+.-]+://%S+)",
     "%f[%S](%a[%w+.-]+://%S+)",
+    -- www.X.Y domain and path
+    "^(www%.[-%w_%%]+%.(%a%a+)/%S+)",
+    "%f[%S](www%.[-%w_%%]+%.(%a%a+)/%S+)",
     -- www.X.Y domain
     "^(www%.[-%w_%%]+%.(%a%a+))",
     "%f[%S](www%.[-%w_%%]+%.(%a%a+))",
-    -- email
+    -- emaild
     "(%S+@[%w_.-%%]+%.(%a%a+))",
     -- ip address with port and path
     "^([0-2]?%d?%d%.[0-2]?%d?%d%.[0-2]?%d?%d%.[0-2]?%d?%d:[0-6]?%d?%d?%d?%d/%S+)",
@@ -52,7 +55,7 @@ function makeClickable(self, event, msg, ...)
 end
 
 StaticPopupDialogs["CLICK_LINK_CLICKURL"] = {
-    text = "Copy/Paste the link into your browser",
+    text = "Copy & Paste the link into your browser",
     button1 = "Close",
     OnAccept = function()
     end,
