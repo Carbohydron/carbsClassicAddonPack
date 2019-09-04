@@ -1,6 +1,6 @@
 --[[
 	main.lua
-		Sets up the configuration panels specifics for Combuctor
+		Sets up the configuration panels specifics for Bagnon
 --]]
 
 local CONFIG, Config = ...

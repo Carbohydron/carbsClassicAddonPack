@@ -1,14 +1,16 @@
-lightweight tag 80b878e25134efdb25c47ce8eae48112c2f92a6a 1.1.5
+lightweight tag 7e5b4c4f2ba0807b88701662c32eefc8de5e7456 1.1.7-classic
 Author:	Wuild <wuildz@gmail.com>
-Date:	Sun Sep 1 20:06:22 2019 +0200
+Date:	Tue Sep 3 15:06:02 2019 +0200
 
-commit 80b878e25134efdb25c47ce8eae48112c2f92a6a
+commit 7e5b4c4f2ba0807b88701662c32eefc8de5e7456
 Author: Wuild <wuildz@gmail.com>
-Date:   Sun Sep 1 20:06:22 2019 +0200
+Date:   Tue Sep 3 15:06:02 2019 +0200
 
-    fixed tooltip and map
-    
-    fixed an error where the tooltip on hovering would throw lua errors.
-    fixed a bug with the world map when opening it to often would crash it and
-    fixed a bug where quest items would be marked as treasures.
+    Update methods.lua
+
+commit 84e871638e3a8eee1d14abb854fc551151af02c2
+Author: Wuild <wuildz@gmail.com>
+Date:   Tue Sep 3 15:05:51 2019 +0200
+
+    fixed node position error
 

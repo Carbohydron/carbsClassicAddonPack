@@ -1,7 +1,7 @@
 local name, GatherLite = ...
 
 GatherLite.name = name;
-GatherLite.version = "1.1.5";
+GatherLite.version = "1.1.7-classic";
 
 GatherLite.isClassic = select(4, GetBuildInfo()) < 20000;
 
