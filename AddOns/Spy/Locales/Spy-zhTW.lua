@@ -5,7 +5,7 @@ if not L then return end
 -- Addon information
 L["Spy"] = "偵測敵方玩家 Spy"
 L["Version"] = "版本"
-L["LoadDescription"] = "|cff9933ff偵測敵方玩家插件已載入，輸入 |cffffffff/spy|cff9933ff 查看更多指令選項。"
+--L["LoadDescription"] = "|cff9933ff偵測敵方玩家插件已載入，輸入 |cffffffff/spy|cff9933ff 查看更多指令選項。"
 L["SpyEnabled"] = "|cff9933ff偵測敵方玩家插件已啟用。"
 L["SpyDisabled"] = "|cff9933ff偵測敵方玩家插件已停用，輸入 |cffffffff/spy enable|cff9933ff 來啟用。"
 L["UpgradeAvailable"] = "|cff9933ff偵測敵方玩家插件已有新版本，可以到這裡下載：\n|cffffffffhttps://www.curseforge.com/wow/addons/spy-classic"

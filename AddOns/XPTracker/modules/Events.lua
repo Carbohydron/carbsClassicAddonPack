@@ -1,4 +1,5 @@
 local XPTracker = LibStub("AceAddon-3.0"):GetAddon("XPTracker")
+local L = LibStub("AceLocale-3.0"):GetLocale("XPTracker")
 
 local Events = XPTracker:GetModule("Events")
 local TextInfo = XPTracker:GetModule("TextInfo")

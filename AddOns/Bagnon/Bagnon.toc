@@ -4,10 +4,6 @@
 ## Notes: Single window displays for your inventory and bank
 ## SavedVariables: Bagnon_Sets
 ## OptionalDeps: BagBrother, WoWUnit
-## Version: 8.2.7
+## Version: 8.2.9
 
-main.lua
-
-external\Wildpants\Wildpants.xml
-external\LibDataBroker-1-1\LibDataBroker-1.1.lua
-components\components.xml
+modules\main.xml

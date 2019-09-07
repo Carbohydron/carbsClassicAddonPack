@@ -1,4 +1,5 @@
 local XPTracker = LibStub("AceAddon-3.0"):NewAddon("XPTracker", "AceConsole-3.0", "AceEvent-3.0",  "AceTimer-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale("XPTracker")
 local db
 
 local Widgets = XPTracker:NewModule("Widgets", "AceEvent-3.0")
@@ -102,7 +103,7 @@ function XPTracker:RefreshXPPH()
   TextInfo:UpdateXPPHInfoText()
   if timeElapsed % 10 == 0 then -- Only update XPPH every 10 seconds
     trackingInfo.CurrentXPPH = math.floor(multiplier * XPRecorded)
-    XPTracker.XPPHText:SetText("XP Per Hour: " .. trackingInfo.CurrentXPPH)
+    XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. trackingInfo.CurrentXPPH)
   end
 end
 
@@ -112,14 +113,14 @@ function XPTracker:InitiateTracking()
   local trackingInfo = db.char.TrackingInfo
   if tracking then trackingInfo.ZoneStartedAt = GetZoneText() end
   trackingInfo.StartTime = TextInfo:GetDateTime()
-  XPTracker.ZoneStartedAtText:SetText("Initial Zone: " .. trackingInfo.ZoneStartedAt)
-  XPTracker.StartTimeText:SetText("Start Time: " .. trackingInfo.StartTime)
+  XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. trackingInfo.ZoneStartedAt)
+  XPTracker.StartTimeText:SetText(L["Start Time: "] .. trackingInfo.StartTime)
 end
 
 function XPTracker:EndTracking()
   local trackingInfo = db.char.TrackingInfo
   trackingInfo.EndTime = TextInfo:GetDateTime()
-  XPTracker.EndTimeText:SetText("End Time: " .. trackingInfo.EndTime)
+  XPTracker.EndTimeText:SetText(L["End Time: "] .. trackingInfo.EndTime)
 end
 
 function XPTracker:TogglePauseButton()
@@ -136,13 +137,13 @@ end
 
 function XPTracker:ResetTrackingData()
   local trackingInfo = db.char.TrackingInfo
-  XPTracker.XPPHText:SetText("XP Per Hour: " .. 0)
-  XPTracker.TimeElapsedText:SetText("Time Elapsed: " .. '0 seconds')
-  XPTracker.XPRecordedText:SetText("XP Recorded: " .. 0)
-  XPTracker.StartTimeText:SetText("Start Time: ...")
-  XPTracker.EndTimeText:SetText("End Time: ...")
-  XPTracker.LevelAtRateText:SetText("Time to Level: ...")
-  XPTracker.ZoneStartedAtText:SetText("Initial Zone: ...")
+  XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. 0)
+  XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. L['0 seconds'])
+  XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. 0)
+  XPTracker.StartTimeText:SetText(L["Start Time: "] .. "...")
+  XPTracker.EndTimeText:SetText(L["End Time: "] .. "...")
+  XPTracker.LevelAtRateText:SetText(L["Time to Level: "] .. "...")
+  XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. "...")
   trackingInfo.CurrentXPPH = 0
   trackingInfo.TimeElapsed = 0
   trackingInfo.XPRecorded = 0
@@ -301,28 +302,25 @@ function XPTracker:UpdateRestingInfo()
   db.char.CurrentlyResting = IsResting()
   db.char.RestedXP = GetXPExhaustion()
   if db.char.RestedXP and XPTracker.RestedXPText then
-    XPTracker.RestedXPText:SetText('Rested XP: ' .. db.char.RestedXP)
+    XPTracker.RestedXPText:SetText(L["Rested XP: "] .. db.char.RestedXP)
     TextInfo:UpdateTextColor()
   end
   if XPTracker.CurrentlyRestingText then
     XPTracker.CurrentlyRestingText:SetText(
-      'Currently Resting: ' .. tostring(db.char.CurrentlyResting))
+      L["Currently Resting: "] .. tostring(db.char.CurrentlyResting))
     TextInfo:UpdateTextColor()
   end
 end
 
 -- TODOs
 -- 1) Maybe add button to print out tracking data to chat window - do this for basic and XPPH separately
--- 2) Add localization
+-- 2) Add actual languages for localization
 -- 3) General cleanup - upvalues etc
--- 4) Hide rested info when not rested
+-- 4) Add a lock button for locking the window in place
 
 -- BUGS
 -- seems to reset to half size when you log out with both sections open - sometimes
 
 -- Maybe:
--- 1) Hide rested XP stuff when not rested?
--- 2) Add Horizontal Rule under basic info text
--- 3) Use symbols for pause and play instead of words?
--- 4) Add the 'down' versions of the button on press and the current functionality on release
--- 5) Add on hover color changes for buttons
+-- 1) Add Horizontal Rule under basic info text
+-- 2) Use symbols for pause and play instead of words?
