@@ -1,67 +1,10 @@
-lightweight tag 0c28140e6d1cdc1b75fbdfb29d66806898b01d9e 1.2.2
+lightweight tag fa6b313ff345509d7a3f7a9a98389bd54d440a6d 1.2.13-classic
 Author:	Wuild <wuildz@gmail.com>
-Date:	Sat Sep 7 01:09:48 2019 +0200
+Date:	Sun Sep 8 17:09:54 2019 +0200
 
-commit 0c28140e6d1cdc1b75fbdfb29d66806898b01d9e
+commit fa6b313ff345509d7a3f7a9a98389bd54d440a6d
 Author: Wuild <wuildz@gmail.com>
-Date:   Sat Sep 7 01:09:48 2019 +0200
+Date:   Sun Sep 8 17:09:54 2019 +0200
 
-    database migration, bug fixes and performance issues fixed
-    
-    Update current nodes loot table to a new structure to avoid duplicated items
-    Remove nodes with empty loot table that hasnt been shared with the new p2p system
-    Remove  node with a faulty position data
-    Track collected coins from treasures
-    Fixed nodes showing when they are disabled
-    Fixed nodes not respecting the distance feature
-    Fixed nodes showing on continent map instead of zone map
-    Tracking nodes wich has been shared to you
-
-commit 31d6829c0e9effba3ce91ec03d7c25f5ad883b8b
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 21:07:16 2019 +0200
-
-    allow string formating in translations
-
-commit c9cf6c5586d5fa0c1b22b83e2083c82a10392b83
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 19:47:11 2019 +0200
-
-    cant spell...
-
-commit efd2f5ce904ed4a3f7b1a13852edb5274ab763a8
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 19:36:52 2019 +0200
-
-    experimental node synchronization
-
-commit 9ce899c2efc085c31dfb803552ae28899df4b842
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 15:37:07 2019 +0200
-
-    tooltip locales
-
-commit 9ce899c2efc085c31dfb803552ae28899df4b842
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 15:37:07 2019 +0200
-
-    tooltip locales
-
-commit 455fe875acd5003b439fd18e21fd476613d44542
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 14:30:03 2019 +0200
-
-    Update README.md
-
-commit 845658eb53fa7d2d162b85260a754c696cebd66a
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 14:29:47 2019 +0200
-
-    Update README.md
-
-commit 408f43275685b0389f449a59c4ac2d35d0572b7a
-Author: Wuild <wuildz@gmail.com>
-Date:   Fri Sep 6 14:25:58 2019 +0200
-
-    added translatable labels...
+    Update methods.lua
 

@@ -65,7 +65,7 @@ end
 
 function MicroMenuMod:OnEnable()
 	if not self.bar then
-		self.bar = setmetatable(Bartender4.ButtonBar:Create("MicroMenu", self.db.profile, L["Micro Menu"]), {__index = MicroMenuBar})
+		self.bar = setmetatable(Bartender4.ButtonBar:Create("MicroMenu", self.db.profile, L["Micro Menu"], true), {__index = MicroMenuBar})
 		local buttons = {}
 
 		for i=1, #BT_MICRO_BUTTONS do
@@ -90,14 +90,6 @@ function MicroMenuMod:OnEnable()
 
 	self:SecureHook("UpdateMicroButtons", "MicroMenuBarShow")
 	self:SecureHook("UpdateMicroButtonsParent")
-	if OverrideActionBar then
-		self:SecureHookScript(OverrideActionBar, "OnShow", "BlizzardBarShow")
-		self:SecureHookScript(OverrideActionBar, "OnHide", "MicroMenuBarShow")
-	end
-	if PetBattleFrame then
-		self:SecureHookScript(PetBattleFrame.BottomFrame.MicroButtonFrame, "OnShow", "BlizzardBarShow")
-		self:SecureHookScript(PetBattleFrame.BottomFrame.MicroButtonFrame, "OnHide", "MicroMenuBarShow")
-	end
 
 	self.bar:Enable()
 	self:ToggleOptions()
@@ -115,8 +107,9 @@ function MicroMenuMod:UpdateMicroButtonsParent(parent)
 	if parent == self.bar then return end
 
 	-- any other parent then MainMenuBarArtFrame means its taken over by the Override bar or the PetBattleFrame
-	if parent ~= MainMenuBarArtFrame then
+	if parent and ((Bartender4.db.profile.blizzardVehicle and parent == OverrideActionBar) or parent == (PetBattleFrame and PetBattleFrame.BottomFrame.MicroButtonFrame)) then
 		self.ownedByUI = true
+		self:BlizzardBarShow()
 		return
 	end
 	self.ownedByUI = false

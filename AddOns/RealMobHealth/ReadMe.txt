@@ -17,6 +17,15 @@ Clears all recorded health data.
 
 ===============================================================================
 Versions:
+2.8	(2019-09-09)
+	-Added zhCN and zhTW localizations (courtesy of EKE00372 and HopeASD)
+
+2.7	(2019-09-08)
+	-Fixed Localization loader not loading the default locale for some people
+
+2.6	(2019-09-08)
+	-Added frFR localization (courtesy of Pgmbru)
+
 2.5	(2019-09-06)
 	-GameTooltip health text is now offloaded to the same on-use generation code that TargetFrame uses
 

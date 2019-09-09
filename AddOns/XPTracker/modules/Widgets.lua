@@ -274,7 +274,7 @@ function Widgets:AddButtonHighlight(frame, width)
   local highlight = frame:CreateTexture(nil, "OVERLAY")
   highlight:SetTexture(136810) -- Interface\\QuestFrame\\UI-QuestTitleHighlight
   highlight:SetBlendMode("ADD")
-  highlight:SetHeight(19)
+  highlight:SetHeight(18)
   highlight:ClearAllPoints()
   highlight:SetPoint("RIGHT", frame, "RIGHT", -width, 2)
   highlight:SetPoint("LEFT", frame, "LEFT", width, 2)

@@ -1,6 +1,6 @@
 ## Interface: 11302
-## Title: RealMobHealth v2.5
-## Version: 2.5
+## Title: RealMobHealth v2.8
+## Version: 2.8
 ## X-APIVersion: 3.2
 ## Author: SDPhantom
 
