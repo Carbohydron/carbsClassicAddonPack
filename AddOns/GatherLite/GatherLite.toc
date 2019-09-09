@@ -1,21 +1,15 @@
 ## Interface: 11302
 ## X-Min-Interface: 80200
-## Title: GatherLite |cFF00FF00 1.1.5|r
-## Author: Wuild, Silvessa, Darkmoon Faire
-## Version: 1.1.5
+## Title: GatherLite |cFF00FF00 1.2.13-classic|r
+## Author: Wuild
+## Version: 1.2.13-classic
+## OptionalDeps: Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0, HereBeDragons
 ## Notes: GatherLite remembers where you found stuff
-## SavedVariables: GatherLiteGlobalSettings
+## SavedVariables: GatherLiteGlobalSettings GatherLiteConfig
 ## SavedVariablesPerCharacter: GatherLiteConfigCharacter
 
-Libs\LibStub\LibStub.lua
-Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+#embeds
+embeds.xml
 
-Libs\HereBeDragons\HereBeDragons-2.0.lua
-Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
-Libs\Version\Version.lua
-
-data.lua
+#main
 GatherLite.lua
-settings.lua
-methods.lua
-events.lua

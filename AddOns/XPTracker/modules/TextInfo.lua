@@ -1,4 +1,5 @@
 local XPTracker = LibStub("AceAddon-3.0"):GetAddon("XPTracker")
+local L = LibStub("AceLocale-3.0"):GetLocale("XPTracker")
 
 local Widgets = XPTracker:GetModule("Widgets")
 local TextInfo = XPTracker:GetModule("TextInfo")
@@ -20,22 +21,22 @@ function TextInfo:AddBasicInfoText(window)
   local restListTopY = initialListBottomY - 20
 
   XPTracker.CurrentLevelText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, topY,
-    "XPTracker - Level ", dbInfo.CurrentLevel .. ' - ' .. dbInfo.LevelPercent .. "%% ")
+    L["XPTracker - Level "], dbInfo.CurrentLevel .. ' - ' .. dbInfo.LevelPercent .. "%% ")
 
-  XPTracker.LastEventXPText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListTopY, "Last Event XP: ",
+  XPTracker.LastEventXPText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListTopY, L["Last Event XP: "],
     dbInfo.LastEventXP)
 
-  XPTracker.RepeatEventText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListTopY - textStep, "Repeat to level: ",
+  XPTracker.RepeatEventText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListTopY - textStep, L["Repeat to level: "],
     XPTracker:RepeatToLevel())
 
-  XPTracker.XPToNextLevelText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListBottomY, "XP to Level: ",
+  XPTracker.XPToNextLevelText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, initialListBottomY, L["XP to Level: "],
     dbInfo.MaxXP - dbInfo.PlayerXP)
 
   XPTracker.CurrentlyRestingText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, restListTopY,
-    "Currently resting: ", tostring(dbInfo.CurrentlyResting))
+    L["Currently Resting: "], tostring(dbInfo.CurrentlyResting))
 
   XPTracker.RestedXPText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, restListTopY - textStep,
-    "Rested XP: ", dbInfo.RestedXP)
+   L["Rested XP: "], dbInfo.RestedXP)
 end
 
 function TextInfo:AddXPPHInfoText(window)
@@ -44,25 +45,25 @@ function TextInfo:AddXPPHInfoText(window)
   local trackingInfo = XPTracker.db.char.TrackingInfo
 
   XPTracker.XPPHText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, topY,
-    "XP Per Hour: ", trackingInfo.CurrentXPPH)
+    L["XP Per Hour: "], trackingInfo.CurrentXPPH)
 
   XPTracker.TimeElapsedText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, topY - textStep,
-    "Time Elapsed: ", TextInfo:DisplayElapsedTime(trackingInfo.TimeElapsed))
+    L["Time Elapsed: "], TextInfo:DisplayElapsedTime(trackingInfo.TimeElapsed))
 
   XPTracker.XPRecordedText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, topY - textStep * 2,
-    "XP Recorded: ", trackingInfo.XPRecorded)
+    L["XP Recorded: "], trackingInfo.XPRecorded)
 
   XPTracker.LevelAtRateText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, topY - textStep * 3,
-    "Time to Level: ", trackingInfo.TimeToLevelAtRate)
+    L["Time to Level: "], trackingInfo.TimeToLevelAtRate)
 
   XPTracker.StartTimeText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, sessionInfoTopY,
-    "Start Time: ", trackingInfo.StartTime)
+    L["Start Time: "], trackingInfo.StartTime)
 
   XPTracker.EndTimeText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, sessionInfoTopY - textStep,
-    "End Time: ", trackingInfo.EndTime)
+    L["End Time: "], trackingInfo.EndTime)
 
   XPTracker.ZoneStartedAtText = TextInfo:CreateTextString(window, "TOPLEFT", xIndent, sessionInfoTopY - textStep * 2,
-    "Initial Zone: ", trackingInfo.ZoneStartedAt)
+    L["Initial Zone: "], trackingInfo.ZoneStartedAt)
 
   TextInfo:SetXPPHTextColor(XPTracker.XPPHText)
   TextInfo:SetXPPHTextColor(XPTracker.TimeElapsedText)
@@ -71,25 +72,25 @@ function TextInfo:AddXPPHInfoText(window)
 end
 
 function TextInfo:UpdateBasicInfoText()
-  XPTracker.CurrentLevelText:SetText('XPTracker - Level ' .. XPTracker.db.char.CurrentLevel
+  XPTracker.CurrentLevelText:SetText(L['XPTracker - Level '] .. XPTracker.db.char.CurrentLevel
     .. ' - ' .. XPTracker.db.char.LevelPercent .. "%"
   )
-  XPTracker.LastEventXPText:SetText('Last Event XP: ' .. XPTracker.db.char.LastEventXP)
+  XPTracker.LastEventXPText:SetText(L['Last Event XP: '] .. XPTracker.db.char.LastEventXP)
   XPTracker.XPToNextLevelText:SetText(
-    'XP to Level: ' .. XPTracker.db.char.MaxXP - XPTracker.db.char.PlayerXP
+    L['XP to Level: '] .. XPTracker.db.char.MaxXP - XPTracker.db.char.PlayerXP
   )
   XPTracker.CurrentlyRestingText:SetText(
-    'Currently Resting: ' .. tostring(XPTracker.db.char.CurrentlyResting))
-  XPTracker.RestedXPText:SetText('Rested XP: ' .. XPTracker.db.char.RestedXP)
-  XPTracker.RepeatEventText:SetText('Repeat to level: ' .. XPTracker:RepeatToLevel())
+    L['Currently Resting: '] .. tostring(XPTracker.db.char.CurrentlyResting))
+  XPTracker.RestedXPText:SetText(L['Rested XP: '] .. XPTracker.db.char.RestedXP)
+  XPTracker.RepeatEventText:SetText(L['Repeat to level: '] .. XPTracker:RepeatToLevel())
 end
 
 function TextInfo:UpdateXPPHInfoText()
   local trackingInfo = XPTracker.db.char.TrackingInfo
   local displayTime = TextInfo:DisplayElapsedTime(trackingInfo.TimeElapsed)
-  XPTracker.TimeElapsedText:SetText("Time Elapsed: " .. displayTime)
+  XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. displayTime)
   TextInfo:DisplayLevelAtRateText()
-  XPTracker.XPRecordedText:SetText("XP Recorded: " .. trackingInfo.XPRecorded)
+  XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. trackingInfo.XPRecorded)
 end
 
 function TextInfo:DisplayLevelAtRateText()
@@ -100,27 +101,27 @@ function TextInfo:DisplayLevelAtRateText()
   else
     trackingInfo.TimeToLevelAtRate = '...'
   end
-  XPTracker.LevelAtRateText:SetText("Time to Level: " .. trackingInfo.TimeToLevelAtRate)
+  XPTracker.LevelAtRateText:SetText(L["Time to Level: "] .. trackingInfo.TimeToLevelAtRate)
 end
 
 function TextInfo:GetLevelAtRateTime(dbInfo, trackingInfo)
   local hourPercent = math.floor((dbInfo.MaxXP - dbInfo.PlayerXP) / trackingInfo.CurrentXPPH * 100) / 100
   if hourPercent < 1 then
-    trackingInfo.TimeToLevelAtRate = hourPercent * 60 .. " minutes"
+    trackingInfo.TimeToLevelAtRate = hourPercent * 60 .. L[" minutes"]
   elseif hourPercent >= 1 then
-    trackingInfo.TimeToLevelAtRate = hourPercent .. " hours"
+    trackingInfo.TimeToLevelAtRate = hourPercent .. L[" hours"]
   end
 end
 
 function TextInfo:DisplayElapsedTime(timeElapsed)
-  local displayTime = "0 seconds"
+  local displayTime = L["0 seconds"]
   if timeElapsed < 60 then
-    displayTime = timeElapsed .. " seconds"
+    displayTime = timeElapsed .. L[" seconds"]
   elseif timeElapsed >= 60 and timeElapsed < 3600 then
-    displayTime = math.floor(timeElapsed / 60) .. " minutes"
+    displayTime = math.floor(timeElapsed / 60) .. L[" minutes"]
   elseif timeElapsed >= 3600 then
     local hours = math.floor(((timeElapsed / 60) / 60) * 100) / 100
-    displayTime = hours .. " hours"
+    displayTime = hours .. L[" hours"]
   end
   return displayTime
 end

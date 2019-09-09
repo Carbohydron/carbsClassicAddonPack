@@ -5,7 +5,7 @@ if not L then return end
 --Addon-Informationen
 L["Spy"] = "Spy"
 L["Version"] = "Version"
-L["LoadDescription"] = "|cff9933ffSpy-Addon geladen. Tippen Sie |cffffffff/spy|cff9933ff für Optionen."
+--L["LoadDescription"] = "|cff9933ffSpy-Addon geladen. Tippen Sie |cffffffff/spy|cff9933ff für Optionen."
 L["SpyEnabled"] = "|cff9933ffSpy-Addon aktiviert."
 L["SpyDisabled"] = "|cff9933ffSpy-Addon deaktiviert. Tippen Sie |cffffffff/Spy enable|cff9933ff um es zu aktivieren."
 L["UpgradeAvailable"] = "|cff9933ffEine neue Version von Spy ist verfügbar. Es kann von: \n| cffffffffhttps://www.curseforge.com/wow/addons/spy-classic heruntergeladen werden."

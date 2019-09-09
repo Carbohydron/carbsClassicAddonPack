@@ -121,6 +121,10 @@ function HealBot_Options_InitVars()
             [HEALBOT_ANTI_VENOM] = {HEALBOT_POISON_en},
             [HEALBOT_POWERFUL_ANTI_VENOM] = {HEALBOT_POISON_en},
             [HEALBOT_STONEFORM] = {HEALBOT_DISEASE_en, HEALBOT_POISON_en},
+            [HBC_CURE_POISON] = {HEALBOT_POISON_en},
+            [HBC_DISPELL_MAGIC] = {HEALBOT_MAGIC_en},
+            [HBC_SHAMAN_CURE_DISEASE] = {HEALBOT_DISEASE_en},
+            [HBC_PRIEST_CURE_DISEASE] = {HEALBOT_DISEASE_en},
         }
     else
         HealBot_Buff_Items_List = {
@@ -865,6 +869,7 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
     elseif tClass=="SHAM" then
         HealBot_Buff_Spells_Class_List = {
             HEALBOT_LIGHTNING_SHIELD,
+            HBC_LIGHTNING_SHIELD,
             HEALBOT_EARTH_SHIELD,
             HEALBOT_WATER_SHIELD,
             HEALBOT_WATER_WALKING,
@@ -928,9 +933,9 @@ function HealBot_Options_GetDebuffSpells_List(class)
           ["MAGE"] = {HEALBOT_REMOVE_CURSE,},
           ["MONK"] = {HEALBOT_DETOX,},
           ["PALA"] = {HEALBOT_CLEANSE, HBC_PURIFY},
-          ["PRIE"] = {HEALBOT_MASS_DISPEL, HEALBOT_PURIFY_DISEASE},
+          ["PRIE"] = {HBC_DISPELL_MAGIC, HBC_PRIEST_CURE_DISEASE},
           ["ROGU"] = {},
-          ["SHAM"] = {HEALBOT_PURIFY_SPIRIT, HEALBOT_CLEANSE_SPIRIT},
+          ["SHAM"] = {HBC_CURE_POISON, HBC_SHAMAN_CURE_DISEASE},
           ["WARL"] = {},
           ["WARR"] = {},
         }
@@ -3140,9 +3145,9 @@ end
 
 function HealBot_Options_DisableCheck()
     local z=0
-    if HealBot_Config.DisableHealBot==false then
+    if not HealBot_Config.DisableHealBot then
         z=0
-    elseif HealBot_Config.DisableSolo==false then
+    elseif not HealBot_Config.DisableSolo then
         z=1
     elseif GetNumGroupMembers()==0 then
         z=1
@@ -5995,6 +6000,7 @@ function HealBot_Options_FullHealSpellsCombo_list (sType)
             HEALBOT_GREATER_HEAL,
             HEALBOT_HEALING_TOUCH,
             HEALBOT_HEAL,
+            HBC_HEAL,
             HEALBOT_HEALING_WAVE,
             HBC_HEALING_WAVE,
             HBC_LESSER_HEALING_WAVE,
@@ -6187,6 +6193,10 @@ local function HealBot_Options_SelectOtherSpellsCombo_DDlist()
             HEALBOT_PURIFY_DISEASE,
             HEALBOT_PURIFY,
             HBC_PURIFY,
+            HBC_SHAMAN_CURE_DISEASE,
+            HBC_PRIEST_CURE_DISEASE,
+            HBC_CURE_POISON,
+            HBC_DISPELL_MAGIC,
             HEALBOT_CLEANSE_SPIRIT,
             HEALBOT_PURIFY_SPIRIT,
             HEALBOT_MASS_DISPEL,
@@ -7015,7 +7025,11 @@ function HealBot_Options_Class_HoTctlName_genList()
             local HealBot_configClassHoTClass=HealBot_Globals.WatchHoT[xClass]
             for bId,_  in pairs(HealBot_configClassHoTClass) do
                 local bName=HealBot_Options_CDebuffTextID(bId) or " "
-                table.insert(tmpHoTctlName_List, bName)
+                if tonumber(bName) == nil then
+                    table.insert(tmpHoTctlName_List, bName)
+                else
+                    HealBot_Options_DeleteBuffHoT(xClass, bId)
+                end
             end
         end
     end    
@@ -9253,11 +9267,15 @@ function HealBot_Options_CDebuffCat_genList()
     local tmpCDebuffCatID_List={}
     local j=0
     local dText=""
-    for dName,x in pairs(HealBot_Globals.Custom_Debuff_Categories) do
-        if HealBot_Options_StorePrev["CDebuffCatID"]==x and HealBot_Globals.HealBot_Custom_Debuffs[dName] then
-            local cdName=HealBot_Options_CDebuffTextID(dName)
-            table.insert(tmpCDebuffCat_List, cdName)
-            j=j+1
+    for dID,x in pairs(HealBot_Globals.Custom_Debuff_Categories) do
+        if HealBot_Options_StorePrev["CDebuffCatID"]==x and HealBot_Globals.HealBot_Custom_Debuffs[dID] then
+            local dName=HealBot_Options_CDebuffTextID(dID)
+            if tonumber(dName) == nil then
+                table.insert(tmpCDebuffCat_List, dName)
+                j=j+1
+            else
+                HealBot_Options_DeleteCDebuff(dID)
+            end
         end
     end
     local x=nil

@@ -22,6 +22,8 @@ libs\AceHook-3.0\AceHook-3.0.xml
 libs\LibSharedMedia-3.0\lib.xml
 libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 
+locale\locale.xml
+
 XPTracker.lua
 modules\Widgets.lua
 modules\Events.lua

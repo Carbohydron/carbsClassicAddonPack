@@ -1,4 +1,5 @@
 local XPTracker = LibStub("AceAddon-3.0"):GetAddon("XPTracker")
+local L = LibStub("AceLocale-3.0"):GetLocale("XPTracker")
 
 local Widgets = XPTracker:GetModule("Widgets")
 local TextInfo = XPTracker:GetModule("TextInfo")
@@ -54,7 +55,7 @@ function Widgets:SetMainWindowHandlers(window)
 end
 
 function Widgets:CreateTrackingButton(window)
-  XPTracker.TrackingButton = Widgets:CreatePrimaryButton(window, 5, -98, "Track")
+  XPTracker.TrackingButton = Widgets:CreatePrimaryButton(window, 5, -98, L["Track"])
   Widgets:UpdateTrackingButtonText(XPTracker.TrackingButton.Text)
   Widgets:SetTrackingButtonHandlers(XPTracker.TrackingButton)
 end
@@ -80,12 +81,12 @@ function Widgets:UpdateTrackingButtonText(textFrame)
   local tracking = XPTracker.db.char.TrackingXP
   local buttonText = ""
 
-  if tracking then buttonText = "Stop" else buttonText = "Track" end
+  if tracking then buttonText = L["Stop"] else buttonText = L["Track"] end
   textFrame:SetText(buttonText)
 end
 
 function Widgets:CreatePauseButton(window)
-  XPTracker.PauseButton = Widgets:CreatePrimaryButton(window, 55, -98, "Pause")
+  XPTracker.PauseButton = Widgets:CreatePrimaryButton(window, 55, -98, L["Pause"])
   XPTracker.PauseButton:Hide()
   Widgets:SetPauseButtonHandlers(XPTracker.PauseButton)
 end
@@ -95,11 +96,11 @@ function Widgets:UpdatePauseButtonText(textFrame)
   local buttonText = ""
   local clearYCoord = XPTracker:GetXandY(XPTracker.ClearButton).y
   if paused then
-    buttonText = "Unpause"
+    buttonText = L["Unpause"]
     XPTracker.PauseButton:SetWidth(85)
     XPTracker.ClearButton:SetPoint("TOPLEFT", 130, clearYCoord)
   else
-    buttonText = "Pause"
+    buttonText = L["Pause"]
     XPTracker.PauseButton:SetWidth(60)
     XPTracker.ClearButton:SetPoint("TOPLEFT", 105, clearYCoord)
   end
@@ -122,7 +123,7 @@ function Widgets:SetPauseButtonHandlers(pauseButton)
 end
 
 function Widgets:CreateClearButton(window)
-  XPTracker.ClearButton = Widgets:CreatePrimaryButton(window, 55, -98, "Clear")
+  XPTracker.ClearButton = Widgets:CreatePrimaryButton(window, 55, -98, L["Clear"])
   Widgets:SetClearButtonHandlers(XPTracker.ClearButton)
 end
 
@@ -192,6 +193,24 @@ function Widgets:CreatePrimaryButton(window, xOrigin, yOrigin, title)
   button.Text:SetPoint("CENTER", 0, 0)
   button.Text:SetText(title)
 
+  Widgets:AddButtonHighlight(button, 10)
+
+  button:SetScript("OnEnter", function(self)
+    button.highlight:Show()
+  end)
+
+  button:SetScript("OnLeave", function(self)
+    button.highlight:Hide()
+  end)
+
+  button:SetScript("OnMouseDown", function(self)
+    button.texture:SetTexture("Interface\\Buttons\\UI-SquareButton-Down.blp")
+  end)
+
+  button:SetScript("OnMouseUp", function(self)
+    button.texture:SetTexture("Interface\\Buttons\\UI-SquareButton-Up.blp")
+  end)
+
   button:Show()
   return button
 end
@@ -249,6 +268,18 @@ function Widgets:CreateToggleButton(window, xOrigin, yOrigin, title)
 
   button:Show()
   return button
+end
+
+function Widgets:AddButtonHighlight(frame, width)
+  local highlight = frame:CreateTexture(nil, "OVERLAY")
+  highlight:SetTexture(136810) -- Interface\\QuestFrame\\UI-QuestTitleHighlight
+  highlight:SetBlendMode("ADD")
+  highlight:SetHeight(18)
+  highlight:ClearAllPoints()
+  highlight:SetPoint("RIGHT", frame, "RIGHT", -width, 2)
+  highlight:SetPoint("LEFT", frame, "LEFT", width, 2)
+  frame.highlight = highlight
+  highlight:Hide()
 end
 
 function Widgets:CreateReloadButton()
