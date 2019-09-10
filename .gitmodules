@@ -4,3 +4,6 @@
 [submodule "ItemPriceTooltip_Classic"]
 	path = ItemPriceTooltip_Classic
 	url = https://github.com/EsreverWoW/ItemPriceTooltip_Classic
+[submodule "crafty"]
+	path = crafty
+	url = https://github.com/shirsig/crafty
