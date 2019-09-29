@@ -138,7 +138,7 @@ function HealBot_Lang_enALL()
     HEALBOT_OPTIONS_CASTNOTIFY3             = "Notify target";
     HEALBOT_OPTIONS_CASTNOTIFY4             = "Notify party";
     HEALBOT_OPTIONS_CASTNOTIFY5             = "Notify raid";
-    HEALBOT_OPTIONS_CASTNOTIFY6             = "Notify chan";
+    HEALBOT_OPTIONS_CASTNOTIFY6             = "General channel";
     HEALBOT_OPTIONS_CASTNOTIFYRESONLY       = "Notify for resurrection only";
     HEALBOT_OPTIONS_EOC_OOM                 = "After combat warn when out of mana"
     HEALBOT_OPTIONS_EOC_OOM_VALUE           = "When mana below"
@@ -172,8 +172,8 @@ function HealBot_Lang_enALL()
     HEALBOT_OPTIONS_GROUPHEALS              = "Group";
     HEALBOT_OPTIONS_TANKHEALS               = "Main tanks";
     HEALBOT_OPTIONS_SINGLETANK              = "Single tank";
-    HEALBOT_OPTIONS_PRIVATETANKS            = "Private main tanks";
-    HEALBOT_OPTIONS_PRIVATEHEALERS          = "Private main healers";
+    HEALBOT_OPTIONS_PRIVATETANKS            = "Private tanks";
+    HEALBOT_OPTIONS_PRIVATEHEALERS          = "Private healers";
     HEALBOT_OPTIONS_TARGETHEALS             = "Target";
     HEALBOT_OPTIONS_EMERGENCYHEALS          = "Raid";
     HEALBOT_OPTIONS_RAID10                  = HEALBOT_OPTIONS_EMERGENCYHEALS.." 10";
@@ -675,6 +675,7 @@ function HealBot_Lang_enALL()
     HEALBOT_DEMOTE_RA                       = "Demote raid assistant"
     HEALBOT_TOGGLE_ENABLED                  = "Toggle enabled"
     HEALBOT_TOGGLE_MYTARGETS                = "Toggle My Targets"
+    HEALBOT_WORD_PERMANENT                  = "Permanent"
     HEALBOT_TOGGLE_PRIVATETANKS             = "Toggle private tanks"
     HEALBOT_TOGGLE_PRIVATEHEALERS           = "Toggle private healers"
     HEALBOT_RESET_BAR                       = "Reset bar"
@@ -1026,6 +1027,7 @@ function HealBot_Lang_enALL()
     HEALBOT_OPTIONS_IN_A_GROUP              = "Only when in a Group or Raid"
     
     HEALBOT_OPTIONS_CONTENT_SKINS_GENERAL   = "    " .. HEALBOT_OPTIONS_TAB_GENERAL
+    HEALBOT_OPTIONS_CONTENT_SKINSF_GENERAL  = "        " .. HEALBOT_OPTIONS_TAB_GENERAL
     HEALBOT_OPTIONS_CONTENT_SKINS_HEALING   = "    " .. HEALBOT_OPTIONS_TAB_HEALING
     HEALBOT_OPTIONS_CONTENT_SKINS_HEADERS   = "        " .. HEALBOT_OPTIONS_TAB_HEADERS
     HEALBOT_OPTIONS_CONTENT_SKINS_BARS      = "        " .. HEALBOT_OPTIONS_TAB_BARS
@@ -1135,8 +1137,8 @@ function HealBot_Lang_enALL()
     HEALBOT_OPTIONS_PRESET_COLOUR           = HEALBOT_OPTIONS_PRESET.." Col"..HEALBOT_enWORD_COLOUR_SUFFIX
     
     HEALBOT_WORD_SUPPORTERS                 = "Supporters"
-    HEALBOT_SUPPORTERS_PEOPLE = {  [01] = "Mythagos - Draenor",
-                                   [02] = "Nerak - Cenarion Circle",
+    HEALBOT_SUPPORTERS_PEOPLE = {  [01] = "Mythagos - Draenor",  -- Mythago
+                                   [02] = "Nerak - Cenarion Circle",  -- Noobrak
                                    [03] = "Slayybelle",
                                    [04] = "EpicMouse",
                                    [05] = "SUNET",
@@ -1150,6 +1152,9 @@ function HealBot_Lang_enALL()
                                    [13] = "Droodibaby",
                                    [14] = "Byset",
                                    [15] = "Redemption",
+                                   [16] = "Jaiseck",
+                                   [17] = "xtacie",
+                                   [18] = "bkwildlifecntrl",
                                 }
                                
 end
@@ -1662,7 +1667,7 @@ function HealBot_Lang_Options_enALL()
                                ["CHATTARGET"]="Send whisper to the target.",
                                ["CHATPARTY"]="Send chat message to the group channel.",
                                ["CHATRAID"]="Send chat message to the raid channel.",
-                               ["CHATCHAN"]="Send chat message to a pre-defined channel.",
+                               ["CHATCHAN"]="Send chat message to your own general channel.",
                                ["CHATRESONLY"]="Send chat messages only when casting resurrection type spells.",
                                ["CHATMSG"]="The format of the message to send.\n#s is substituted with the spell name.\n#n is substituted with the players name.",
                                ["EOCOOM"]="When enabled and mana drops below the select amount.\nAt the end of combat emote Out of Mana.",

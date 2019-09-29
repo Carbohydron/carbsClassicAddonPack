@@ -2,7 +2,7 @@ GatherLite = LibStub("AceAddon-3.0"):NewAddon("GatherLite", "AceConsole-3.0", "A
 local name, _GatherLite = ...
 
 _GatherLite.name = name;
-_GatherLite.version = "1.2.13-classic";
+_GatherLite.version = GetAddOnMetadata(name, "version");
 
 _GatherLite.isClassic = select(4, GetBuildInfo()) < 20000;
 
@@ -16,9 +16,12 @@ _GatherLite.gatherSpellRanges = {
 _GatherLite.TimeSinceLastUpdate = 0;
 _GatherLite.UpdateInterval = 1.0;
 _GatherLite.nodes = {
-    minimap = {},
-    worldmap = {}
-};
+    mining = {},
+    herbalism = {},
+    treasure = {},
+    fish = {},
+    artifacts = {}
+}
 
 -- tracker data
 _GatherLite.tracker = {
@@ -112,13 +115,16 @@ _GatherLite.configsDefaults = {
             opacity = 1,
             distance = 70,
             loot = true,
-            edge = false
+            edge = false,
+            neighbors = true
         },
         worldmap = {
             enabled = true,
             size = 12,
             opacity = 1,
-            loot = true
+            loot = true,
+            neighbors = true,
+            continent = false
         },
         p2p = {
             guild = true,

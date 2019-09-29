@@ -286,11 +286,17 @@ function HealBot_Action_SetrSpell()
                 x=sName
             end
         end
-        sName=HealBot_KnownSpell(HEALBOT_MARK_OF_THE_WILD)
+        sName=HealBot_KnownSpell(HBC_GIFT_OF_THE_WILD)
         if sName then 
 			HealBot_RangeSpells["BUFF"]=sName
 			x=sName
-		end
+		else
+            sName=HealBot_KnownSpell(HEALBOT_MARK_OF_THE_WILD)
+            if sName then 
+                HealBot_RangeSpells["BUFF"]=sName
+                x=sName
+            end
+        end
         sName=HealBot_KnownSpell(HEALBOT_REMOVE_CORRUPTION)
         if sName then 
 			HealBot_RangeSpells["CURE"]=sName
@@ -378,7 +384,7 @@ function HealBot_Action_SetrSpell()
                 end
             end
         end
-        if HEALBOT_GAME_VERSION>7 then
+        if HEALBOT_GAME_VERSION>3 then
             sName=HealBot_KnownSpell(HEALBOT_POWER_WORD_FORTITUDE)
         else
             sName=HealBot_KnownSpell(HBC_POWER_WORD_FORTITUDE)
@@ -876,7 +882,7 @@ function HealBot_Action_UpdateTheDeadButton(button)
             if Healbot_Config_Skins.RaidIcon[Healbot_Config_Skins.Current_Skin][button.frame]["SHOW"] then 
                 button.update.targeticon=true
             end
-            button.update.buff=true
+            button.aura.buff.check=true
             button.update.state=true
             button.status.update=true
             button.health.updhealth=true
@@ -911,6 +917,11 @@ function HealBot_Action_UpdateTheDeadButton(button)
         HealBot_UpdateUnitRange(button,HealBot_RangeSpells["RES"],false)
         HealBot_Action_setHealthText(button)
         HealBot_Action_setNameTag(button)
+        local PlayerBuffsList=button.aura.buff.recheck
+        button.aura.buff.nextcheck=false
+        for name,_ in pairs (PlayerBuffsList) do
+            PlayerBuffsList[name]=nil
+        end
         ebubar:SetValue(0)
     end
     local ebusr,ebusg,ebusb = HealBot_Action_TextColours(button)
@@ -1660,7 +1671,7 @@ function HealBot_Action_setHealthText(button)
         end
 
         local vInfo=""
-        if HEALBOT_GAME_VERSION>7 and UnitInVehicle(button.unit) then
+        if HEALBOT_GAME_VERSION>3 and UnitInVehicle(button.unit) then
             local vUnit=HealBot_UnitPet(button.unit)
             if vUnit then
                 local vName=UnitName(vUnit)
@@ -1744,18 +1755,13 @@ function HealBot_Action_setNameText(button)
         if Healbot_Config_Skins.BarText[Healbot_Config_Skins.Current_Skin][button.frame]["CLASSONBAR"] and Healbot_Config_Skins.BarText[Healbot_Config_Skins.Current_Skin][button.frame]["CLASSTYPE"]==2 and UnitClass(button.unit) then
             local clTxt=UnitClass(button.unit)
             if Healbot_Config_Skins.BarText[Healbot_Config_Skins.Current_Skin][button.frame]["SHOWROLE"] then
-                local hbRole=UnitGroupRolesAssigned(button.unit)
-                if hbRole=="NONE" and HealBot_UnitData[button.guid] then
-                    hbRole=HealBot_UnitData[button.guid]["ROLE"]
-                end
+                local hbRole=HealBot_Panel_UnitRole(button.unit)
                 if hbRole=="DAMAGER" then
                     clTxt=HEALBOT_WORD_DAMAGER
                 elseif hbRole=="HEALER" then
                     clTxt=HEALBOT_WORD_HEALER
                 elseif hbRole=="TANK" then
                     clTxt=HEALBOT_WORD_TANK
-                elseif hbRole=="LEADER" then
-                    clTxt=HEALBOT_WORD_LEADER
                 else
                     clTxt=UnitClass(button.unit)
                 end
@@ -2547,7 +2553,7 @@ local function HealBot_DoAction_ResetSkin(barType,button,numcols)
         h:Disable();
     elseif barType=="frameheader" then
         local g=_G["f"..numcols.."_HealBot_Action"]
-        if g:IsVisible() then
+        if g:IsVisible() and g:GetRight() and g:GetLeft() then
             bar=_G["f"..numcols.."_HealBot_Action_HeaderBar"]
             if Healbot_Config_Skins.FrameAlias[Healbot_Config_Skins.Current_Skin][numcols]["SHOW"] then
                 local fWidth=g:GetRight()-g:GetLeft()
@@ -2742,6 +2748,7 @@ local function HealBot_Action_CreateButton(hbCurFrame)
         if not ghb.aura then
             ghb.aura={}
             ghb.aura.buff={}
+            ghb.aura.buff.recheck={}
             ghb.aura.debuff={}
             ghb.status={}
             ghb.update={}
@@ -2770,8 +2777,6 @@ local function HealBot_Action_CreateButton(hbCurFrame)
         ghb.update.reset=true
         ghb.update.unit=false
         ghb.update.state=false
-        ghb.update.buff=false
-        ghb.update.debuff=false
         ghb.update.roleicon=false
         ghb.update.targeticon=false
         ghb.status.range=-2
@@ -2787,6 +2792,7 @@ local function HealBot_Action_CreateButton(hbCurFrame)
         ghb.aura.buff.id=0
         ghb.icon.buff.count=0
         ghb.aura.buff.priority=99
+        ghb.aura.buff.nextcheck=GetTime()+5
         ghb.aura.debuff.type=false
         ghb.aura.debuff.name=false
         ghb.aura.debuff.id=0
@@ -2802,6 +2808,7 @@ local function HealBot_Action_CreateButton(hbCurFrame)
         ghb.text.health="100"
         ghb.text.name=" "
         ghb.text.tag=""
+        ghb.spec=" "
         local bar = _G["HealBot_Action_HealUnit"..ghb.id.."Bar"]
         local bar2 = _G["HealBot_Action_HealUnit"..ghb.id.."Bar2"] 
         local bar3 = _G["HealBot_Action_HealUnit"..ghb.id.."Bar3"] 
@@ -2928,7 +2935,7 @@ function HealBot_Action_GetSpell(cType, cKey)
                 sVar=GetItemInfo(sID)
             else
                 sVar=GetSpellInfo(sID)
-				if HEALBOT_GAME_VERSION==1 then
+				if HEALBOT_GAME_VERSION<4 then
 					local rank = GetSpellSubtext(sID)
 					if rank then
                         local knownHealSpells=HealBot_Init_retFoundHealSpells()
@@ -3059,52 +3066,42 @@ local function HealBot_Action_hbmenuFrame_DropDown_Initialize(self,level,menuLis
         info.hasArrow = true; 
         info.menuList = "cNames"
         UIDropDownMenu_AddButton(info, 1);
-        
-        
-        info = UIDropDownMenu_CreateInfo();
-        info.hasArrow = false; 
-        info.notCheckable = true;
-        if HealBot_Panel_RetMyHealTarget(self.unit) then
-            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_TARGETHEALS;
-        else
-            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_TARGETHEALS
-        end
-        info.func = function() HealBot_Panel_ToggelHealTarget(self.unit); end;
-        UIDropDownMenu_AddButton(info, 1);
-        
-        info = UIDropDownMenu_CreateInfo();
-        info.hasArrow = false; 
-        info.notCheckable = true;
-        if HealBot_Panel_RetPrivateTanks(self.unit) then
-            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_PRIVATETANKS;
-        else
-            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_PRIVATETANKS
-        end
-        info.func = function() HealBot_Panel_ToggelPrivateTanks(self.unit); end;
-        UIDropDownMenu_AddButton(info, 1);
-		info = UIDropDownMenu_CreateInfo();
-		info.hasArrow = false; 
-        info.notCheckable = true;
-        if HealBot_Panel_RetPrivateHealers(self.unit) then
-            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_PRIVATEHEALERS;
-        else
-            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_PRIVATEHEALERS
-        end
-        info.func = function() HealBot_Panel_ToggelPrivateHealers(self.unit); end;
-        UIDropDownMenu_AddButton(info, 1);
 
         info = UIDropDownMenu_CreateInfo();
         info.notCheckable = true;
-        if HealBot_retHbFocus(self.unit) then
-            info.text = HEALBOT_WORD_CLEAR.." "..HEALBOT_WORD_HBFOCUS;
-            info.hasArrow = false;
-            info.func = function() HealBot_ToggelFocusMonitor(self.unit); end;
-        else
-            info.text = HEALBOT_WORD_SET.." "..HEALBOT_WORD_HBFOCUS
-            info.hasArrow = true; 
-            info.menuList = "hbFocus"
-        end
+        info.text = HEALBOT_OPTIONS_MYTARGET
+        info.hasArrow = true; 
+        info.menuList = "myHeals"
         UIDropDownMenu_AddButton(info, 1);
+        
+        info = UIDropDownMenu_CreateInfo();
+        info.notCheckable = true;
+        info.text = HEALBOT_OPTIONS_PRIVATETANKS
+        info.hasArrow = true; 
+        info.menuList = "pTanks"
+        UIDropDownMenu_AddButton(info, 1);
+        
+        info = UIDropDownMenu_CreateInfo();
+        info.notCheckable = true;
+        info.text = HEALBOT_OPTIONS_PRIVATEHEALERS
+        info.hasArrow = true; 
+        info.menuList = "pHeals"
+        UIDropDownMenu_AddButton(info, 1);
+
+        if HEALBOT_GAME_VERSION>3 then 
+            info = UIDropDownMenu_CreateInfo();
+            info.notCheckable = true;
+            if HealBot_retHbFocus(self.unit) then
+                info.text = HEALBOT_WORD_CLEAR.." "..HEALBOT_WORD_HBFOCUS;
+                info.hasArrow = false;
+                info.func = function() HealBot_ToggelFocusMonitor(self.unit); end;
+            else
+                info.text = HEALBOT_WORD_SET.." "..HEALBOT_WORD_HBFOCUS
+                info.hasArrow = true; 
+                info.menuList = "hbFocus"
+            end
+            UIDropDownMenu_AddButton(info, 1);
+        end
         
         info = UIDropDownMenu_CreateInfo();
         info.hasArrow = false; 
@@ -3117,7 +3114,7 @@ local function HealBot_Action_hbmenuFrame_DropDown_Initialize(self,level,menuLis
         info.hasArrow = false; 
         info.notCheckable = true;
         info.text = HEALBOT_PANEL_BLACKLIST
-        info.func = function() HealBot_Panel_AddBlackList(HealBot_UnitGUID(self.unit)); end
+        info.func = function() HealBot_Panel_AddBlackList(self.unit); end
         UIDropDownMenu_AddButton(info, 1);
         
         info = UIDropDownMenu_CreateInfo();
@@ -3129,27 +3126,93 @@ local function HealBot_Action_hbmenuFrame_DropDown_Initialize(self,level,menuLis
         info = UIDropDownMenu_CreateInfo();
         info.hasArrow = false; 
         info.notCheckable = true;
-        if HealBot_Globals.HealBot_customPermUserName[HealBot_UnitGUID(self.unit)] then
+        if HealBot_Globals.HealBot_customPermUserName[UnitGUID(self.unit)] then
             info.text = HEALBOT_WORDS_REMOVEPERMCUSTOMNAME
-            info.func = function() HealBot_Action_DelCustomName(HealBot_UnitGUID(self.unit), false, true); end;
+            info.func = function() HealBot_Action_DelCustomName(UnitGUID(self.unit), false, true); end;
         else
             info.text = HEALBOT_WORDS_ADDPERMCUSTOMNAME
-            info.func = function() HealBot_Action_GetCustomNameDialog(HealBot_UnitGUID(self.unit), true, true); end;
+            info.func = function() HealBot_Action_GetCustomNameDialog(UnitGUID(self.unit), true, true); end;
         end
         UIDropDownMenu_AddButton(info, 2);
     
         info = UIDropDownMenu_CreateInfo();
         info.hasArrow = false; 
         info.notCheckable = true;
-        if HealBot_customTempUserName[HealBot_UnitGUID(self.unit)] then
+        if HealBot_customTempUserName[UnitGUID(self.unit)] then
             info.text = HEALBOT_WORDS_REMOVETEMPCUSTOMNAME
-            info.func = function() HealBot_Action_DelCustomName(HealBot_UnitGUID(self.unit), false, false); end;
+            info.func = function() HealBot_Action_DelCustomName(UnitGUID(self.unit), false, false); end;
         else
             info.text = HEALBOT_WORDS_ADDTEMPCUSTOMNAME
-            info.func = function() HealBot_Action_GetCustomNameDialog(HealBot_UnitGUID(self.unit), true, false); end;
+            info.func = function() HealBot_Action_GetCustomNameDialog(UnitGUID(self.unit), true, false); end;
         end
         UIDropDownMenu_AddButton(info, 2);
-    elseif menuList=="hbFocus" then
+    elseif menuList=="myHeals" then        
+        info = UIDropDownMenu_CreateInfo();
+        info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetMyHealTarget(self.unit, false) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_MYTARGET;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_MYTARGET
+        end
+        info.func = function() HealBot_Panel_ToggelHealTarget(self.unit, false); end;
+        UIDropDownMenu_AddButton(info, 2);
+           
+        info = UIDropDownMenu_CreateInfo();
+        info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetMyHealTarget(self.unit, true) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_MYTARGET;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_MYTARGET
+        end
+        info.func = function() HealBot_Panel_ToggelHealTarget(self.unit, true); end;
+        UIDropDownMenu_AddButton(info, 2);
+    elseif menuList=="pTanks" then
+        info = UIDropDownMenu_CreateInfo();
+        info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetPrivateTanks(self.unit, false) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_PRIVATETANKS;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_PRIVATETANKS
+        end
+        info.func = function() HealBot_Panel_ToggelPrivateTanks(self.unit, false); end;
+        UIDropDownMenu_AddButton(info, 2);
+        
+        info = UIDropDownMenu_CreateInfo();
+        info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetPrivateTanks(self.unit, true) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_PRIVATETANKS;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_PRIVATETANKS
+        end
+        info.func = function() HealBot_Panel_ToggelPrivateTanks(self.unit, true); end;
+        UIDropDownMenu_AddButton(info, 2);
+    elseif menuList=="pHeals" then
+		info = UIDropDownMenu_CreateInfo();
+		info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetPrivateHealers(self.unit, false) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_PRIVATEHEALERS;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_PRIVATEHEALERS
+        end
+        info.func = function() HealBot_Panel_ToggelPrivateHealers(self.unit, false); end;
+        UIDropDownMenu_AddButton(info, 2);
+        
+		info = UIDropDownMenu_CreateInfo();
+		info.hasArrow = false; 
+        info.notCheckable = true;
+        if HealBot_Panel_RetPrivateHealers(self.unit, true) then
+            info.text = HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_PRIVATEHEALERS;
+        else
+            info.text = HEALBOT_WORDS_ADDTO.." "..HEALBOT_WORD_PERMANENT.." "..HEALBOT_OPTIONS_PRIVATEHEALERS
+        end
+        info.func = function() HealBot_Panel_ToggelPrivateHealers(self.unit, true); end;
+        UIDropDownMenu_AddButton(info, 2);
+    elseif menuList=="hbFocus" and HEALBOT_GAME_VERSION>3 then
         info = UIDropDownMenu_CreateInfo();
         info.text = HEALBOT_WORD_ALLZONE
         info.hasArrow = false; 
@@ -3296,7 +3359,7 @@ local function HealBot_Action_SetButtonAttrib(button,bbutton,bkey,status,j)
         elseif strlower(sName)==strlower(HEALBOT_MENU) then
             button:SetAttribute(HB_prefix..buttonType..j, nil);
             button:SetAttribute(HB_prefix.."type"..j, "togglemenu")
-        elseif strlower(sName)==strlower(HEALBOT_HBMENU) and HealBot_UnitGUID(button.unit) then
+        elseif strlower(sName)==strlower(HEALBOT_HBMENU) and UnitGUID(button.unit) then
             button:SetAttribute(HB_prefix..buttonType..j, nil);
             button:SetAttribute(HB_prefix.."type"..j, "showhbmenu")
             showHBmenu = function()
@@ -3406,17 +3469,6 @@ local function HealBot_Action_SetAllButtonAttribs(button,status)
     end
 end
 
-function HealBot_Action_SetUnitData(hbGUID, unit)
-    HealBot_UnitData[hbGUID]={}
-    HealBot_UnitData[hbGUID]["SPEC"] = " "
-    HealBot_UnitData[hbGUID]["UNIT"]=unit
-    if HEALBOT_GAME_VERSION>7 then
-        HealBot_UnitData[hbGUID]["ROLE"] = UnitGroupRolesAssigned(unit) or HEALBOT_WORDS_UNKNOWN
-    else
-        HealBot_UnitData[hbGUID]["ROLE"] = HEALBOT_WORDS_UNKNOWN
-    end
-end
-
 function HealBot_Action_SetHealButton(unit,hbGUID,hbCurFrame,unitType)
     local shb=nil
     if hbGUID then
@@ -3439,27 +3491,18 @@ function HealBot_Action_SetHealButton(unit,hbGUID,hbCurFrame,unitType)
             HealBot_ResetBarSkinDone[shb.frame][shb.id] = nil
             HealBot_initSkin[shb.frame][shb.id]=nil
         end
-        if not HealBot_UnitData[hbGUID] then
-            HealBot_Action_SetUnitData(hbGUID, unit)
-            if not HealBot_UnitData[unit] then HealBot_UnitData[unit]={} end
-            if UnitExists(unit) then
-                if UnitIsFriend("player",unit) then 
-                    HealBot_CheckPlayerMana(hbGUID, unit) 
-                end
-            end
-            shb.reset=true
-        end
         if shb.unit~=unit or shb.reset or shb.guid~=hbGUID then
             shb.reset=false
             shb.unit=unit
             shb.guid=hbGUID
-            HealBot_UnitData[hbGUID]["UNIT"]=unit
             if unitType==9 then
                 HealBot_Enemy_Button[unit]=shb
             elseif unitType>1 and unitType<4 then
                 HealBot_Pet_Button[unit]=shb
+                HealBot_setUnitGUID(hbGUID, unit)
             else
                 HealBot_Unit_Button[unit]=shb
+                if unitType==1 then HealBot_setUnitGUID(hbGUID, unit) end
             end
             shb.status.unittype = unitType  -- 1=player  2=vehicle  3=pet  4=target  5=focus  6-8=reserved  9=enemy
             shb.checks.timed=GetTime() + HealBot_Action_luVars["updateDelay"]
@@ -3479,12 +3522,18 @@ function HealBot_Action_SetHealButton(unit,hbGUID,hbCurFrame,unitType)
             HealBot_Action_setNameText(shb)
             HealBot_Action_HBText(shb)
             HealBot_Action_CheckUnitLowMana(shb)
-            if not shb.update.unit and Healbot_Config_Skins.BarText[Healbot_Config_Skins.Current_Skin][hbCurFrame]["CLASSONBAR"] then
-                shb.update.roleicon=true
-            end
             shb.update.unit=true
             shb.status.update=true
             shb.status.range=-2
+            if UnitExists(unit) then
+                if UnitIsFriend("player",unit) then 
+                    HealBot_CheckPlayerMana(shb) 
+                end
+            end
+        end
+        if not shb.update.unit and Healbot_Config_Skins.BarText[Healbot_Config_Skins.Current_Skin][hbCurFrame]["CLASSONBAR"] then
+            shb.update.roleicon=true
+            shb.status.update=true
         end
         if not HealBot_ResetBarSkinDone[shb.frame][shb.id] then
             HealBot_Action_ResetSkin("bar",shb)
@@ -3579,7 +3628,7 @@ function HealBot_Action_DeleteButton(hbBarID)
     local dg=_G["HealBot_Action_HealUnit"..hbBarID]
     local dbUnit=dg.unit or "N"
     local dbGUID=dg.guid or "0"
-    if not UnitExists(dbUnit) or dbGUID~=HealBot_UnitGUID(dbUnit) then
+    if not UnitExists(dbUnit) or dbGUID~=UnitGUID(dbUnit) then
         HealBot_mark2clearGUID(dbGUID)
     end
     HealBot_HoT_RemoveIconButton(dg,true)
@@ -4051,9 +4100,9 @@ local function HealBot_Action_DoHealUnit_Wheel(self, delta)
     elseif HealBot_MouseWheelCmd==HEALBOT_TOGGLE_MYTARGETS then
         HealBot_Panel_ToggelHealTarget(xButton.unit)
     elseif HealBot_MouseWheelCmd==HEALBOT_TOGGLE_PRIVATETANKS then
-        HealBot_Panel_ToggelPrivateTanks(xButton.unit)
+        HealBot_Panel_ToggelPrivateTanks(xButton.unit, false)
     elseif HealBot_MouseWheelCmd==HEALBOT_TOGGLE_PRIVATEHEALERS then
-        HealBot_Panel_ToggelPrivateHealers(xButton.unit)
+        HealBot_Panel_ToggelPrivateHealers(xButton.unit, false)
     elseif HealBot_MouseWheelCmd==HEALBOT_RESET_BAR then
         HealBot_Reset_Unit(xButton)
     elseif HealBot_MouseWheelCmd==HEALBOT_RANDOMMOUNT and UnitIsUnit(xUnit,"player") and not UnitAffectingCombat("player") then
@@ -4542,7 +4591,7 @@ function HealBot_Action_OnDragStart(self, hbCurFrame)
 end
 
 function HealBot_Action_Toggle_Enabled(button)
-    local xGUID=HealBot_UnitGUID(button.unit)
+    local xGUID=UnitGUID(button.unit)
     if HealBot_AlwaysEnabled[button.guid] then
         HealBot_AlwaysEnabled[button.guid]=nil
     else

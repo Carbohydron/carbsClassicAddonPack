@@ -112,7 +112,7 @@ optionsButton:SetScript('OnClick', function()
 end)
 
 function HealBot_Options_InitVars()
-    if HEALBOT_GAME_VERSION==1 then 
+    if HEALBOT_GAME_VERSION<4 then 
         HealBot_Debuff_Types = {
             [HEALBOT_CLEANSE] = {HEALBOT_DISEASE_en, HEALBOT_POISON_en, HEALBOT_MAGIC_en},
             [HEALBOT_REMOVE_CURSE] = {HEALBOT_CURSE_en},
@@ -121,10 +121,14 @@ function HealBot_Options_InitVars()
             [HEALBOT_ANTI_VENOM] = {HEALBOT_POISON_en},
             [HEALBOT_POWERFUL_ANTI_VENOM] = {HEALBOT_POISON_en},
             [HEALBOT_STONEFORM] = {HEALBOT_DISEASE_en, HEALBOT_POISON_en},
-            [HBC_CURE_POISON] = {HEALBOT_POISON_en},
+            [HBC_SHAMAN_CURE_POISON] = {HEALBOT_POISON_en},
+            [HBC_DRUID_CURE_POISON] = {HEALBOT_POISON_en},
+            [HBC_DRUID_ABOLISH_POISON] = {HEALBOT_POISON_en},
+            [HBC_DRUID_REMOVE_CURSE] = {HEALBOT_CURSE_en},
             [HBC_DISPELL_MAGIC] = {HEALBOT_MAGIC_en},
             [HBC_SHAMAN_CURE_DISEASE] = {HEALBOT_DISEASE_en},
             [HBC_PRIEST_CURE_DISEASE] = {HEALBOT_DISEASE_en},
+            [HBC_PRIEST_ABOLISH_DISEASE] = {HEALBOT_DISEASE_en},
         }
     else
         HealBot_Buff_Items_List = {
@@ -159,35 +163,129 @@ function HealBot_Options_setLists()
     
     HealBot_Options_setClassEn()
 
-    HealBot_Options_BuffTxt_List = {
-        HEALBOT_WORDS_NONE,
-        HEALBOT_OPTIONS_BUFFSELF,
-        HEALBOT_OPTIONS_BUFFPARTY,
-        HEALBOT_OPTIONS_BUFFRAID,
-        HEALBOT_DRUID,
-        HEALBOT_HUNTER,
-        HEALBOT_MAGE,
-        HEALBOT_MONK,
-        HEALBOT_PALADIN,
-        HEALBOT_PRIEST,
-        HEALBOT_ROGUE,
-        HEALBOT_SHAMAN,
-        HEALBOT_WARLOCK,
-        HEALBOT_WARRIOR,
-        HEALBOT_DEATHKNIGHT,
-        HEALBOT_DEMONHUNTER,
-        HEALBOT_CLASSES_MELEE,
-        HEALBOT_CLASSES_RANGES,
-        HEALBOT_CLASSES_HEALERS,
-        HEALBOT_CLASSES_CUSTOM,
-        HEALBOT_BUFF_PVP,
-        HEALBOT_BUFF_PVE,
-        HEALBOT_OPTIONS_TANKHEALS,
-        HEALBOT_OPTIONS_MYTARGET,
-        HEALBOT_FOCUS,
-        HEALBOT_SORTBY_NAME,
-        HEALBOT_OPTIONS_SINGLETANK,
-    }
+    if HEALBOT_GAME_VERSION>3 then 
+        HealBot_Options_BuffTxt_List = {
+            HEALBOT_WORDS_NONE,
+            HEALBOT_OPTIONS_BUFFSELF,
+            HEALBOT_OPTIONS_BUFFPARTY,
+            HEALBOT_OPTIONS_BUFFRAID,
+            HEALBOT_DRUID,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_MONK,
+            HEALBOT_PALADIN,
+            HEALBOT_PRIEST,
+            HEALBOT_ROGUE,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARLOCK,
+            HEALBOT_WARRIOR,
+            HEALBOT_DEATHKNIGHT,
+            HEALBOT_DEMONHUNTER,
+            HEALBOT_CLASSES_MELEE,
+            HEALBOT_CLASSES_RANGES,
+            HEALBOT_CLASSES_HEALERS,
+            HEALBOT_CLASSES_CUSTOM,
+            HEALBOT_BUFF_PVP,
+            HEALBOT_BUFF_PVE,
+            HEALBOT_OPTIONS_TANKHEALS,
+            HEALBOT_OPTIONS_MYTARGET,
+            HEALBOT_FOCUS,
+            HEALBOT_SORTBY_NAME,
+            HEALBOT_OPTIONS_SINGLETANK,
+        }
+
+        HealBot_Options_FilterHoTctl_List = {
+            HEALBOT_CLASSES_ALL,
+            HEALBOT_DEATHKNIGHT,
+            HEALBOT_DEMONHUNTER,
+            HEALBOT_DRUID,
+            HEALBOT_PALADIN,
+            HEALBOT_MONK,
+            HEALBOT_PRIEST,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARRIOR,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_ROGUE,
+            HEALBOT_WARLOCK,
+        }
+
+        HealBot_Options_EmergencyFilter_List = {
+            HEALBOT_CLASSES_ALL,
+            HEALBOT_DEATHKNIGHT,
+            HEALBOT_DEMONHUNTER,
+            HEALBOT_DRUID,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_MONK,
+            HEALBOT_PALADIN,
+            HEALBOT_PRIEST,
+            HEALBOT_ROGUE,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARLOCK,
+            HEALBOT_WARRIOR,
+            HEALBOT_CLASSES_MELEE,
+            HEALBOT_CLASSES_RANGES,
+            HEALBOT_CLASSES_HEALERS,
+            HEALBOT_CLASSES_CUSTOM,
+        }
+    else
+        HealBot_Options_BuffTxt_List = {
+            HEALBOT_WORDS_NONE,
+            HEALBOT_OPTIONS_BUFFSELF,
+            HEALBOT_OPTIONS_BUFFPARTY,
+            HEALBOT_OPTIONS_BUFFRAID,
+            HEALBOT_DRUID,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_PALADIN,
+            HEALBOT_PRIEST,
+            HEALBOT_ROGUE,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARLOCK,
+            HEALBOT_WARRIOR,
+            HEALBOT_CLASSES_MELEE,
+            HEALBOT_CLASSES_RANGES,
+            HEALBOT_CLASSES_HEALERS,
+            HEALBOT_CLASSES_CUSTOM,
+            HEALBOT_BUFF_PVP,
+            HEALBOT_BUFF_PVE,
+            HEALBOT_OPTIONS_TANKHEALS,
+            HEALBOT_OPTIONS_MYTARGET,
+            HEALBOT_SORTBY_NAME,
+            HEALBOT_OPTIONS_SINGLETANK,
+        }
+
+        HealBot_Options_FilterHoTctl_List = {
+            HEALBOT_CLASSES_ALL,
+            HEALBOT_DRUID,
+            HEALBOT_PALADIN,
+            HEALBOT_PRIEST,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARRIOR,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_ROGUE,
+            HEALBOT_WARLOCK,
+        }
+
+        HealBot_Options_EmergencyFilter_List = {
+            HEALBOT_CLASSES_ALL,
+            HEALBOT_DRUID,
+            HEALBOT_HUNTER,
+            HEALBOT_MAGE,
+            HEALBOT_PALADIN,
+            HEALBOT_PRIEST,
+            HEALBOT_ROGUE,
+            HEALBOT_SHAMAN,
+            HEALBOT_WARLOCK,
+            HEALBOT_WARRIOR,
+            HEALBOT_CLASSES_MELEE,
+            HEALBOT_CLASSES_RANGES,
+            HEALBOT_CLASSES_HEALERS,
+            HEALBOT_CLASSES_CUSTOM,
+        }
+    end
     
     HealBot_Options_TargetFocusInCombat_List = {
         HEALBOT_OPTIONS_ALWAYSHIDE,
@@ -498,22 +596,6 @@ function HealBot_Options_setLists()
         HEALBOT_OPTIONS_LOWMANAINDICATOR6,
     }
 
-    HealBot_Options_FilterHoTctl_List = {
-        HEALBOT_CLASSES_ALL,
-        HEALBOT_DEATHKNIGHT,
-        HEALBOT_DEMONHUNTER,
-        HEALBOT_DRUID,
-        HEALBOT_PALADIN,
-        HEALBOT_MONK,
-        HEALBOT_PRIEST,
-        HEALBOT_SHAMAN,
-        HEALBOT_WARRIOR,
-        HEALBOT_HUNTER,
-        HEALBOT_MAGE,
-        HEALBOT_ROGUE,
-        HEALBOT_WARLOCK,
-    }
-
     HealBot_Options_Class_HoTctlAction_List = {
         HEALBOT_WORDS_NONE,
         HEALBOT_OPTIONS_SELFHEALS,
@@ -532,26 +614,6 @@ function HealBot_Options_setLists()
         HEALBOT_OPTIONS_ALERTAGGROLEVEL1,
         HEALBOT_OPTIONS_ALERTAGGROLEVEL2,
         HEALBOT_OPTIONS_ALERTAGGROLEVEL3,
-    }
-
-    HealBot_Options_EmergencyFilter_List = {
-        HEALBOT_CLASSES_ALL,
-        HEALBOT_DEATHKNIGHT,
-        HEALBOT_DEMONHUNTER,
-        HEALBOT_DRUID,
-        HEALBOT_HUNTER,
-        HEALBOT_MAGE,
-        HEALBOT_MONK,
-        HEALBOT_PALADIN,
-        HEALBOT_PRIEST,
-        HEALBOT_ROGUE,
-        HEALBOT_SHAMAN,
-        HEALBOT_WARLOCK,
-        HEALBOT_WARRIOR,
-        HEALBOT_CLASSES_MELEE,
-        HEALBOT_CLASSES_RANGES,
-        HEALBOT_CLASSES_HEALERS,
-        HEALBOT_CLASSES_CUSTOM,
     }
 
     HealBot_Options_TooltipPos_List = {
@@ -710,7 +772,7 @@ end
 HealBot_Options_setClassEn()
 
 function HealBot_Options_FrameAliasList()
-    if HEALBOT_GAME_VERSION==1 then 
+    if HEALBOT_GAME_VERSION<4 then 
         if Healbot_Config_Skins.FrameAlias and Healbot_Config_Skins.FrameAlias[Healbot_Config_Skins.Current_Skin] then
             HealBot_Options_HealGroupsFrame_List = {
                 Healbot_Config_Skins.FrameAlias[Healbot_Config_Skins.Current_Skin][1]["ALIAS"] or HEALBOT_OPTIONS_FRAME.." 1",
@@ -784,6 +846,8 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
     elseif tClass=="DRUI" then
         HealBot_Buff_Spells_Class_List = {
             HEALBOT_MARK_OF_THE_WILD,
+            HBC_GIFT_OF_THE_WILD,
+            HBC_OMEN_OF_CLARITY,
             HEALBOT_BARKSKIN,
             HEALBOT_IRONBARK,
             HBC_THORNS,
@@ -806,14 +870,19 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
     elseif tClass=="MAGE" then
         HealBot_Buff_Spells_Class_List = {
             HEALBOT_ARCANE_BRILLIANCE,
+            HBC_ARCANE_BRILLIANCE,
             HEALBOT_DALARAN_BRILLIANCE,
             HEALBOT_MAGE_WARD,
+            HBC_MAGE_ARMOR,
             HEALBOT_BLAZING_BARRIER,
             HEALBOT_PRISMATIC_BARRIER,
             HEALBOT_ARCANE_POWER,
             HEALBOT_SLOW_FALL,
             HEALBOT_FOCUS_MAGIC,
             HEALBOT_ICE_WARD,
+            HEALBOT_ICE_BARRIER,
+            HBC_DAMPEN_MAGIC,
+            HBC_FROST_ARMOR,
         }
     elseif tClass=="MONK" then
         HealBot_Buff_Spells_Class_List = {
@@ -828,7 +897,10 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
         HealBot_Buff_Spells_Class_List = {
             HEALBOT_BLESSING_OF_MIGHT,
             HBC_BLESSING_OF_MIGHT,
+            HBC_BLESSING_OF_SANCTUARY,
             HEALBOT_BLESSING_OF_KINGS,
+            HBC_BLESSING_OF_KINGS,
+            HBC_BLESSING_OF_LIGHT,
             HEALBOT_BLESSING_OF_WISDOM,
             HBC_BLESSING_OF_WISDOM,
             HEALBOT_HAND_OF_FREEDOM,
@@ -837,6 +909,9 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
             HEALBOT_RIGHTEOUS_FURY,
             HEALBOT_DEVOTION_AURA,
             HBC_RETRIBUTION_AURA,
+            HBC_FIRE_RESISTANCE_AURA,
+            HBC_FROST_RESISTANCE_AURA,
+            HBC_SHADOW_RESISTANCE_AURA,
             HEALBOT_BEACON_OF_LIGHT,
             HEALBOT_BEACON_OF_VIRTUE,
             HEALBOT_SEAL_OF_RIGHTEOUSNESS,
@@ -846,7 +921,7 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
             HBC_SEAL_OF_THE_CRUSADER,
             HEALBOT_SACRED_SHIELD,
         }
-        if HEALBOT_GAME_VERSION>7 then
+        if HEALBOT_GAME_VERSION>3 then
             local i = GetSpecialization()
             local specID = 0
             if i then specID = GetSpecializationInfo(i,false,false) end
@@ -858,8 +933,14 @@ function HealBot_Options_InitBuffSpellsClassList(tClass)
         HealBot_Buff_Spells_Class_List = {
             HEALBOT_POWER_WORD_FORTITUDE,
             HBC_POWER_WORD_FORTITUDE,
+            HBC_SHADOW_PROTECTION,
+            HBC_TOUCH_OF_WEAKNESS,
+            HBC_DIVINE_SPIRIT,
+            HBC_PRAYER_OF_SHADOW_PROTECTION,
+            HBC_PRAYER_OF_SPIRIT,
             HBC_INNER_FIRE,
             HEALBOT_FEAR_WARD,
+            HBC_SHADOWGUARD,
             HEALBOT_SHADOWFORM,
             HEALBOT_LEVITATE,
         }
@@ -924,18 +1005,18 @@ end
 
 function HealBot_Options_GetDebuffSpells_List(class)
     local HealBot_Debuff_Spells = {}
-    if HEALBOT_GAME_VERSION==1 then 
+    if HEALBOT_GAME_VERSION<4 then 
         HealBot_Debuff_Spells = {
           ["DEAT"] = {},
           ["DEMO"] = {}, -- Demon Hunter
-          ["DRUI"] = {HEALBOT_REMOVE_CORRUPTION, HEALBOT_NATURES_CURE,},
+          ["DRUI"] = {HBC_DRUID_CURE_POISON, HBC_DRUID_ABOLISH_POISON, HBC_DRUID_REMOVE_CURSE, },
           ["HUNT"] = {},
           ["MAGE"] = {HEALBOT_REMOVE_CURSE,},
-          ["MONK"] = {HEALBOT_DETOX,},
+          ["MONK"] = {},
           ["PALA"] = {HEALBOT_CLEANSE, HBC_PURIFY},
-          ["PRIE"] = {HBC_DISPELL_MAGIC, HBC_PRIEST_CURE_DISEASE},
+          ["PRIE"] = {HBC_DISPELL_MAGIC, HBC_PRIEST_CURE_DISEASE, HBC_PRIEST_ABOLISH_DISEASE},
           ["ROGU"] = {},
-          ["SHAM"] = {HBC_CURE_POISON, HBC_SHAMAN_CURE_DISEASE},
+          ["SHAM"] = {HBC_SHAMAN_CURE_POISON, HBC_SHAMAN_CURE_DISEASE},
           ["WARL"] = {},
           ["WARR"] = {},
         }
@@ -2952,7 +3033,7 @@ function HealBot_Options_MonitorDebuffs_OnClick(self)
 end
 
 function HealBot_Options_MonitorDebuffs_Toggle()
-    HealBot_CheckAllDebuffs()
+    HealBot_setOptions_Timer(20)
 end
 
 function HealBot_Options_MonitorBuffsInCombat_OnClick(self)
@@ -3027,7 +3108,7 @@ function HealBot_Options_BuffCol_ShowOnHealthBar_OnClick(self)
         HealBot_Config_Buffs.CBshownHB = false
     end
     HealBot_ClearAllBuffs()
-    HealBot_CheckAllBuffs()
+    HealBot_setOptions_Timer(30)
 end
 
 
@@ -3040,8 +3121,7 @@ function HealBot_Options_CDCCol_OnOff_OnClick(self)
         end
         for xUnit,xButton in pairs(HealBot_Unit_Button) do
             if xButton.aura.debuff and xButton.aura.debuff.name then
-                xButton.update.debuff=true
-                xButton.status.update=true
+                xButton.aura.debuff.check=true
             end
         end
     end
@@ -3057,8 +3137,7 @@ function HealBot_Options_CustomBuffCol_OnOff_OnClick(self)
         end
         for xUnit,xButton in pairs(HealBot_Unit_Button) do
             if xButton.aura.buff and xButton.aura.buff.name then
-                xButton.update.buff=true
-                xButton.status.update=true
+                xButton.aura.buff.check=true
             end
         end
     end
@@ -3082,7 +3161,7 @@ function HealBot_Options_BuffCol_ShowOnAggroBar_OnClick(self)
         HealBot_SetResetFlag("SOFT")
     end
     HealBot_ClearAllBuffs()
-    HealBot_CheckAllBuffs()
+    HealBot_setOptions_Timer(30)
 end
 
 function HealBot_Options_PanelSounds_OnClick(self)
@@ -3156,7 +3235,7 @@ function HealBot_Options_DisableCheck()
         if z==0 then 
             HealBot_Config.DisabledNow=0
             HealBot_setOptions_Timer(9999)
-            HealBot_OnEvent_TalentsChanged(nil)
+            HealBot_setOptions_Timer(200)
         end
         HealBot_setOptions_Timer(500+z)
         if z==1 then 
@@ -3350,6 +3429,11 @@ function HealBot_Options_EFClass_OnClick(self)
         else
             HealBot_Globals.EmergIncMelee[HEALBOT_WARRIOR] = false
         end
+        if HealBot_Options_EFClassDemonHunter:GetChecked() then
+            HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER] = true
+        else
+            HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER] = false
+        end
         if HealBot_Options_EFClassDeathKnight:GetChecked() then
             HealBot_Globals.EmergIncMelee[HEALBOT_DEATHKNIGHT] = true
         else
@@ -3405,6 +3489,11 @@ function HealBot_Options_EFClass_OnClick(self)
             HealBot_Globals.EmergIncRange[HEALBOT_WARRIOR] = true
         else
             HealBot_Globals.EmergIncRange[HEALBOT_WARRIOR] = false
+        end
+        if HealBot_Options_EFClassDemonHunter:GetChecked() then
+            HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER] = true
+        else
+            HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER] = false
         end
         if HealBot_Options_EFClassDeathKnight:GetChecked() then
             HealBot_Globals.EmergIncRange[HEALBOT_DEATHKNIGHT] = true
@@ -3462,6 +3551,11 @@ function HealBot_Options_EFClass_OnClick(self)
         else
             HealBot_Globals.EmergIncHealers[HEALBOT_WARRIOR] = false
         end
+        if HealBot_Options_EFClassDemonHunter:GetChecked() then
+            HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER] = true
+        else
+            HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER] = false
+        end
         if HealBot_Options_EFClassDeathKnight:GetChecked() then
             HealBot_Globals.EmergIncHealers[HEALBOT_DEATHKNIGHT] = true
         else
@@ -3517,6 +3611,11 @@ function HealBot_Options_EFClass_OnClick(self)
             HealBot_Globals.EmergIncCustom[HEALBOT_WARRIOR] = true
         else
             HealBot_Globals.EmergIncCustom[HEALBOT_WARRIOR] = false
+        end
+        if HealBot_Options_EFClassDemonHunter:GetChecked() then
+            HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER] = true
+        else
+            HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER] = false
         end
         if HealBot_Options_EFClassDeathKnight:GetChecked() then
             HealBot_Globals.EmergIncCustom[HEALBOT_DEATHKNIGHT] = true
@@ -5752,6 +5851,7 @@ function HealBot_Options_EFClass_Reset()
         HealBot_Options_EFClassShaman:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_SHAMAN]);
         HealBot_Options_EFClassWarlock:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_WARLOCK]);
         HealBot_Options_EFClassWarrior:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_WARRIOR]);
+        HealBot_Options_EFClassDemonHunter:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER]);
         HealBot_Options_EFClassDeathKnight:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_DEATHKNIGHT]);
         HealBot_Options_EFClassMonk:SetChecked(HealBot_Globals.EmergIncMelee[HEALBOT_MONK]);
     elseif HealBot_Globals.EmergencyFClass==2 then
@@ -5764,6 +5864,7 @@ function HealBot_Options_EFClass_Reset()
         HealBot_Options_EFClassShaman:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_SHAMAN]);
         HealBot_Options_EFClassWarlock:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_WARLOCK]);
         HealBot_Options_EFClassWarrior:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_WARRIOR]);
+        HealBot_Options_EFClassDemonHunter:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER]);
         HealBot_Options_EFClassDeathKnight:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_DEATHKNIGHT]);
         HealBot_Options_EFClassMonk:SetChecked(HealBot_Globals.EmergIncRange[HEALBOT_MONK]);
     elseif HealBot_Globals.EmergencyFClass==3 then
@@ -5776,6 +5877,7 @@ function HealBot_Options_EFClass_Reset()
         HealBot_Options_EFClassShaman:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_SHAMAN]);
         HealBot_Options_EFClassWarlock:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_WARLOCK]);
         HealBot_Options_EFClassWarrior:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_WARRIOR]);
+        HealBot_Options_EFClassDemonHunter:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER]);
         HealBot_Options_EFClassDeathKnight:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_DEATHKNIGHT]);
         HealBot_Options_EFClassMonk:SetChecked(HealBot_Globals.EmergIncHealers[HEALBOT_MONK]);
     elseif HealBot_Globals.EmergencyFClass==4 then
@@ -5788,6 +5890,7 @@ function HealBot_Options_EFClass_Reset()
         HealBot_Options_EFClassShaman:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_SHAMAN]);
         HealBot_Options_EFClassWarlock:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_WARLOCK]);
         HealBot_Options_EFClassWarrior:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_WARRIOR]);
+        HealBot_Options_EFClassDemonHunter:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER]);
         HealBot_Options_EFClassDeathKnight:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_DEATHKNIGHT]);
         HealBot_Options_EFClassMonk:SetChecked(HealBot_Globals.EmergIncCustom[HEALBOT_MONK]);
     end
@@ -6077,7 +6180,7 @@ end
 
 function HealBot_Options_SelectHealSpellsCombo_DDlist(sType)
     local tmpHealDDlist={}
-    if HEALBOT_GAME_VERSION>7 then
+    if HEALBOT_GAME_VERSION>3 then
         local fullHealDDlist=HealBot_Options_FullHealSpellsCombo_list(sType)
         for j=1, getn(fullHealDDlist), 1 do
             local spellName=HealBot_KnownSpell(fullHealDDlist[j])
@@ -6178,6 +6281,7 @@ local function HealBot_Options_SelectOtherSpellsCombo_DDlist()
             HEALBOT_REDEMPTION,
             HEALBOT_REBIRTH,
             HEALBOT_TREE_OF_LIFE,
+            HEALBOT_INNERVATE,
             HEALBOT_ANCESTRALSPIRIT,
             HEALBOT_RESUSCITATE,
             HEALBOT_ABSOLUTION,
@@ -6194,15 +6298,19 @@ local function HealBot_Options_SelectOtherSpellsCombo_DDlist()
             HEALBOT_PURIFY,
             HBC_PURIFY,
             HBC_SHAMAN_CURE_DISEASE,
-            HBC_PRIEST_CURE_DISEASE,
-            HBC_CURE_POISON,
-            HBC_DISPELL_MAGIC,
+            --HBC_PRIEST_CURE_DISEASE,
+            HBC_DRUID_ABOLISH_POISON,
+            HBC_PRIEST_ABOLISH_DISEASE,
+            HBC_DRUID_CURE_POISON,
+            HBC_SHAMAN_CURE_POISON,
+            --HBC_DISPELL_MAGIC,
             HEALBOT_CLEANSE_SPIRIT,
             HEALBOT_PURIFY_SPIRIT,
             HEALBOT_MASS_DISPEL,
             HEALBOT_LIFE_TAP,
             HEALBOT_DIVINE_SHIELD,
             HEALBOT_DIVINE_PROTECTION,
+            HBC_DIVINE_INTERVENTION,
             HEALBOT_ANACESTRAL_SWIFTNESS,
             HEALBOT_LEAP_OF_FAITH,
             HEALBOT_UNLEASH_ELEMENTS,
@@ -6675,7 +6783,7 @@ function HealBot_Options_FramesSelFrame_DropDown()
         info.text = HealBot_Options_HealGroupsFrame_List[j];
         info.func = function(self)
                         HealBot_Options_StorePrev["FramesSelFrame"]=self:GetID()
-                        if HEALBOT_GAME_VERSION==1 then 
+                        if HEALBOT_GAME_VERSION<4 then 
                             if HealBot_Options_StorePrev["FramesSelFrame"]==6 then HealBot_Options_StorePrev["FramesSelFrame"]=7 end
                             if HealBot_Options_StorePrev["FramesSelFrame"]==9 then HealBot_Options_StorePrev["FramesSelFrame"]=10 end
                         end
@@ -7431,6 +7539,7 @@ function HealBot_Options_EmergencyFilter_Reset()
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARLOCK]] = HealBot_Globals.EmergIncMelee[HEALBOT_WARLOCK];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARRIOR]] = HealBot_Globals.EmergIncMelee[HEALBOT_WARRIOR];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEATHKNIGHT]] = HealBot_Globals.EmergIncMelee[HEALBOT_DEATHKNIGHT];
+            HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEMONHUNTER]] = HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_MONK]] = HealBot_Globals.EmergIncMelee[HEALBOT_MONK];
         elseif Healbot_Config_Skins.BarVisibility[Healbot_Config_Skins.Current_Skin][j]["INCCLASSES"]==14 then
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DRUID]] = HealBot_Globals.EmergIncRange[HEALBOT_DRUID];
@@ -7443,6 +7552,7 @@ function HealBot_Options_EmergencyFilter_Reset()
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARLOCK]] = HealBot_Globals.EmergIncRange[HEALBOT_WARLOCK];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARRIOR]] = HealBot_Globals.EmergIncRange[HEALBOT_WARRIOR];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEATHKNIGHT]] = HealBot_Globals.EmergIncRange[HEALBOT_DEATHKNIGHT];
+            HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEMONHUNTER]] = HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_MONK]] = HealBot_Globals.EmergIncRange[HEALBOT_MONK];
         elseif Healbot_Config_Skins.BarVisibility[Healbot_Config_Skins.Current_Skin][j]["INCCLASSES"]==15 then
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DRUID]] = HealBot_Globals.EmergIncHealers[HEALBOT_DRUID];
@@ -7455,6 +7565,7 @@ function HealBot_Options_EmergencyFilter_Reset()
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARLOCK]] = HealBot_Globals.EmergIncHealers[HEALBOT_WARLOCK];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARRIOR]] = HealBot_Globals.EmergIncHealers[HEALBOT_WARRIOR];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEATHKNIGHT]] = HealBot_Globals.EmergIncHealers[HEALBOT_DEATHKNIGHT];
+            HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEMONHUNTER]] = HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_MONK]] = HealBot_Globals.EmergIncHealers[HEALBOT_MONK];
         elseif Healbot_Config_Skins.BarVisibility[Healbot_Config_Skins.Current_Skin][j]["INCCLASSES"]==16 then
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DRUID]] = HealBot_Globals.EmergIncCustom[HEALBOT_DRUID];
@@ -7467,6 +7578,7 @@ function HealBot_Options_EmergencyFilter_Reset()
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARLOCK]] = HealBot_Globals.EmergIncCustom[HEALBOT_WARLOCK];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_WARRIOR]] = HealBot_Globals.EmergIncCustom[HEALBOT_WARRIOR];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEATHKNIGHT]] = HealBot_Globals.EmergIncCustom[HEALBOT_DEATHKNIGHT];
+            HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_DEMONHUNTER]] = HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER];
             HealBot_EmergInc[j][HealBot_Class_En[HEALBOT_MONK]] = HealBot_Globals.EmergIncCustom[HEALBOT_MONK];
         end
     end
@@ -7579,54 +7691,6 @@ end
 function HealBot_Options_setMyGuildMates(unitName)
     if hbMyFriends[unitName] or unitName==HealBot_Data["PNAME"] then return end
     hbMyGuildMates[unitName]=true
-end
-
-function HealBot_Options_rethbTempUnitNames()
-    local hbTempShareUnitNames={}
-    HealBot_Options_StorePrev["hbTempNumUnitNames"]=0
-    local x=GetNumFriends()
-    if x>0 then
-        for y=1,x do
-            local uName, _, _, _, z = GetFriendInfo(y)
-            if z and hbMyFriends[uName] then
-                hbTempShareUnitNames[uName]="F"
-                HealBot_Options_StorePrev["hbTempNumUnitNames"]=HealBot_Options_StorePrev["hbTempNumUnitNames"]+1
-            end
-        end
-    end
-    x=BNGetNumFriends()
-    if x>0 then
-        for y=1,x do
-           local _, _, _, uName, _, _, isOnline = BNGetFriendInfo(y)
-           if isOnline and hbMyFriends[uName] then
-               hbTempShareUnitNames[uName]="B"
-               HealBot_Options_StorePrev["hbTempNumUnitNames"]=HealBot_Options_StorePrev["hbTempNumUnitNames"]+1
-           end
-       end
-    end 
-    x=GetNumGuildMembers()
-    if x>0 then
-        for y=1,x do
-            local uName, _, _, _, _, _, _, _, z = GetGuildRosterInfo(y)
-            if z and hbMyGuildMates[uName] then
-                hbTempShareUnitNames[uName]="G"
-                HealBot_Options_StorePrev["hbTempNumUnitNames"]=HealBot_Options_StorePrev["hbTempNumUnitNames"]+1
-            end
-        end
-    end
-    local hbOptUsers=HealBot_GetInfo()
-    for uName,_ in pairs(hbOptUsers) do
-        if uName~=HealBot_Data["PNAME"] and not hbTempShareUnitNames[uName] then
-            local xUnit=HealBot_Panel_RaidUnit(nil,uName)
-            if xUnit then
-                hbTempShareUnitNames[uName]="R"
-                HealBot_Options_StorePrev["hbTempNumUnitNames"]=HealBot_Options_StorePrev["hbTempNumUnitNames"]+1
-            end
-        end
-    end
-    hbTempShareUnitNames[HEALBOT_ABOUT_URL]="X"
-    HealBot_Options_StorePrev["hbTempNumUnitNames"]=HealBot_Options_StorePrev["hbTempNumUnitNames"]+1
-    return hbTempShareUnitNames
 end
 
 HealBot_Options_StorePrev["InOutSkin"]=1
@@ -9465,6 +9529,7 @@ function HealBot_Options_CDCCastBy_DropDown()
                             HealBot_Globals.FilterCustomDebuff[HealBot_Options_StorePrev["CDebuffcustomName"]]=nil
                         end
                         UIDropDownMenu_SetText(HealBot_Options_CDCCastBy,HealBot_Options_StorePrev["CDebuffcustomCastBy"]) 
+                        HealBot_setOptions_Timer(20)
                     end
         info.checked = false;
         if HealBot_Options_StorePrev["CDebuffcustomName"] then
@@ -9527,7 +9592,7 @@ function HealBot_Options_NewCDebuffBtn_OnClick(NewCDebuffTxt)
     HealBot_Options_NewCDebuff:SetText("")
     HealBot_Options_CDC_checkStatus(useId)
   --  UIDropDownMenu_SetSelectedValue(HealBot_Options_CDebuffTxt1, useId);
-    HealBot_CheckAllDebuffs() 
+    HealBot_setOptions_Timer(20) 
     HealBot_Options_CDebuffResetList()
     HealBot_Globals.CatchAltDebuffIDs[name]=true
 end
@@ -9668,7 +9733,7 @@ function HealBot_Options_EnableDisableCDBtn_OnClick(self)
     end
     HealBot_Options_SetEnableDisableCDBtn()
     HealBot_ClearDebuffCache(HealBot_Options_StorePrev["CDebuffcustomName"])
-    HealBot_CheckAllDebuffs()
+    HealBot_setOptions_Timer(20)
 end
 
 function HealBot_Options_SetEnableDisableCDBtn()
@@ -9946,7 +10011,6 @@ end
 local FirstDebuffLoad=true
 local function HealBot_Options_DoDebuff_Reset()
     HealBot_Options_setDebuffTypes()
-    HealBot_CheckAllDebuffs()
     HealBot_DebuffWatchTarget[HEALBOT_DISEASE_en] = {HEALBOT_DISEASE_en = {}};
     HealBot_DebuffWatchTarget[HEALBOT_POISON_en] = {HEALBOT_POISON_en = {}};
     HealBot_DebuffWatchTarget[HEALBOT_MAGIC_en] = {HEALBOT_MAGIC_en = {}};
@@ -9960,7 +10024,7 @@ local function HealBot_Options_DoDebuff_Reset()
     
     for k=1,3 do
         if DebuffDropDownClass[HealBot_Options_getDropDownId_bySpec(k)] and DebuffDropDownClass[HealBot_Options_getDropDownId_bySpec(k)]>1 then
-            local sName = HealBot_Spell_Names[DebuffTextClass[HealBot_Options_getDropDownId_bySpec(k)]];
+            local sName = DebuffTextClass[HealBot_Options_getDropDownId_bySpec(k)]
             if HealBot_Debuff_Types[sName] then
                 table.foreach(HealBot_Debuff_Types[sName], function (i,dName)
 
@@ -10030,6 +10094,9 @@ local function HealBot_Options_DoDebuff_Reset()
                         if HealBot_Globals.EmergIncMelee[HEALBOT_DEATHKNIGHT] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                         end
+                        if HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER] then
+                            HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                        end
                         if HealBot_Globals.EmergIncMelee[HEALBOT_MONK] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                         end
@@ -10063,6 +10130,9 @@ local function HealBot_Options_DoDebuff_Reset()
                         end
                         if HealBot_Globals.EmergIncRange[HEALBOT_DEATHKNIGHT] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
+                        end
+                        if HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER] then
+                            HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
                         end
                         if HealBot_Globals.EmergIncRange[HEALBOT_MONK] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
@@ -10098,6 +10168,9 @@ local function HealBot_Options_DoDebuff_Reset()
                         if HealBot_Globals.EmergIncHealers[HEALBOT_DEATHKNIGHT] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                         end
+                        if HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER] then
+                            HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                        end
                         if HealBot_Globals.EmergIncHealers[HEALBOT_MONK] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                         end
@@ -10132,6 +10205,9 @@ local function HealBot_Options_DoDebuff_Reset()
                         if HealBot_Globals.EmergIncCustom[HEALBOT_DEATHKNIGHT] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                         end
+                        if HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER] then
+                            HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                        end
                         if HealBot_Globals.EmergIncCustom[HEALBOT_MONK] then
                             HealBot_DebuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                         end
@@ -10152,8 +10228,8 @@ local function HealBot_Options_DoDebuff_Reset()
                 end)
             end
         end
-        HealBot_setOptions_Timer(20)
     end
+    HealBot_setOptions_Timer(20)
     FirstDebuffLoad=nil
 end
 
@@ -10162,7 +10238,6 @@ local spells={}
 local FirstBuffLoad=true
 local function HealBot_Options_DoBuff_Reset()
     HealBot_Options_setDebuffTypes()
-    HealBot_CheckAllBuffs()
     BuffTextClass = HealBot_Config_Buffs.HealBotBuffText
     local BuffDropDownClass = HealBot_Config_Buffs.HealBotBuffDropDown
     local buffbarcolrClass = HealBot_Config_Buffs.HealBotBuffColR
@@ -10263,6 +10338,9 @@ local function HealBot_Options_DoBuff_Reset()
                     if HealBot_Globals.EmergIncMelee[HEALBOT_DEATHKNIGHT] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                     end
+                    if HealBot_Globals.EmergIncMelee[HEALBOT_DEMONHUNTER] then
+                        HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                    end
                     if HealBot_Globals.EmergIncMelee[HEALBOT_MONK] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                     end
@@ -10296,6 +10374,9 @@ local function HealBot_Options_DoBuff_Reset()
                     end
                     if HealBot_Globals.EmergIncRange[HEALBOT_DEATHKNIGHT] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
+                    end
+                    if HealBot_Globals.EmergIncRange[HEALBOT_DEMONHUNTER] then
+                        HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
                     end
                     if HealBot_Globals.EmergIncRange[HEALBOT_MONK] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
@@ -10331,6 +10412,9 @@ local function HealBot_Options_DoBuff_Reset()
                     if HealBot_Globals.EmergIncHealers[HEALBOT_DEATHKNIGHT] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                     end
+                    if HealBot_Globals.EmergIncHealers[HEALBOT_DEMONHUNTER] then
+                        HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                    end
                     if HealBot_Globals.EmergIncHealers[HEALBOT_MONK] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                     end
@@ -10365,6 +10449,9 @@ local function HealBot_Options_DoBuff_Reset()
                     if HealBot_Globals.EmergIncCustom[HEALBOT_DEATHKNIGHT] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEATHKNIGHT]]=true;
                     end
+                    if HealBot_Globals.EmergIncCustom[HEALBOT_DEMONHUNTER] then
+                        HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_DEMONHUNTER]]=true;
+                    end
                     if HealBot_Globals.EmergIncCustom[HEALBOT_MONK] then
                         HealBot_BuffWatchTargetSpell[HealBot_Class_En[HEALBOT_MONK]]=true;
                     end
@@ -10388,9 +10475,9 @@ local function HealBot_Options_DoBuff_Reset()
                 HealBot_buffbarcolg[sName]=buffbarcolgClass[k];
                 HealBot_buffbarcolb[sName]=buffbarcolbClass[k];
             end
-            HealBot_setOptions_Timer(30)
         end
     end
+    HealBot_setOptions_Timer(30)
     FirstBuffLoad=nil
 end
 
@@ -10436,17 +10523,12 @@ function HealBot_GuessName()
     if HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell] and (type(HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell]) == "table") then
         local tGUID=HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell]
         for uGUID,_ in pairs(tGUID) do
-            if HealBot_UnitData[uGUID] then
+            local xUnit=HealBot_retUnitGUID(myGUID)
+            if xUnit then
                 if gName then
-                    local xUnit=HealBot_Panel_RaidUnit(myGUID)
-                    if xUnit then
-                        gName=gName..","..HealBot_Panel_UnitName(xUnit)
-                    end
+                    gName=gName..","..HealBot_Panel_UnitName(xUnit)
                 else
-                    local xUnit=HealBot_Panel_RaidUnit(myGUID)
-                    if xUnit then
-                        gName=HealBot_Panel_UnitName(xUnit)
-                    end
+                    gName=HealBot_Panel_UnitName(xUnit)
                 end
             end
         end
@@ -10459,18 +10541,13 @@ function HealBot_GuessName()
         local myTargets=HealBot_GetMyHealTargets()
         local x=true
         table.foreach(myTargets, function (i,myGUID)
-            if HealBot_UnitData[myGUID] then
+            local xUnit=HealBot_retUnitGUID(myGUID)
+            if xUnit then
                 if gName and x then 
-                    local xUnit=HealBot_Panel_RaidUnit(myGUID)
-                    if xUnit then
-                        gName=gName..","..HealBot_Panel_UnitName(xUnit)
-                    end
+                    gName=gName..","..HealBot_Panel_UnitName(xUnit)
                     x=nil
                 elseif x then
-                    local xUnit=HealBot_Panel_RaidUnit(myGUID)
-                    if xUnit then
-                        gName=HealBot_Panel_UnitName(xUnit)
-                    end
+                    gName=HealBot_Panel_UnitName(xUnit)
                 end
             end  
         end)
@@ -10493,16 +10570,18 @@ function HealBot_Options_Set_BuffWatchGUID(unitName)
         local tGUID=HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell]
         if tGUID and type(tGUID)=="table" then
             for uGUID,_ in pairs(tGUID) do
-                if HealBot_UnitData[uGUID] and HealBot_UnitData[uGUID]["UNIT"] then
-                    xButton=HealBot_Unit_Button[HealBot_UnitData[uGUID]["UNIT"]]
+                local xUnit=HealBot_retUnitGUID(uGUID)
+                if xUnit then
+                    xButton=HealBot_Unit_Button[xUnit]
                     if xButton and xButton.aura.buff.name==BuffWatchSpell then
                         HealBot_ClearBuff(xButton)
                     end
                 end
             end
         elseif tGUID then
-            if HealBot_UnitData[tGUID] and HealBot_UnitData[tGUID]["UNIT"] then
-                xButton=HealBot_Unit_Button[HealBot_UnitData[tGUID]["UNIT"]]
+            local xUnit=HealBot_retUnitGUID(uGUID)
+            if xUnit then
+                xButton=HealBot_Unit_Button[xUnit]
                 if xButton and xButton.aura.buff.name==BuffWatchSpell then
                     HealBot_ClearBuff(xButton)
                 end
@@ -10533,7 +10612,8 @@ function HealBot_Options_Set_BuffWatchGUID(unitName)
     HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell]={}
     
     for _,uGUID in pairs(tGUID) do
-        if HealBot_UnitData[uGUID] then
+        local xUnit=HealBot_retUnitGUID(uGUID)
+        if xUnit then
             HealBot_Config.HealBot_BuffWatchGUID[BuffWatchSpell][uGUID]=uGUID 
             HealBot_Queue_MyBuffsCheck(uGUID)
         end
@@ -10979,10 +11059,6 @@ function HealBot_SetBuffBarColours()
     HealBot_setOptions_Timer(40)
 end
 --------------------------------------------------------------------------------
-
-function HealBot_Options_NotifyChan_OnTextChanged(self)
-    Healbot_Config_Skins.Chat[Healbot_Config_Skins.Current_Skin]["CHAN"] = self:GetText()
-end
 
 function HealBot_Options_FrameAlias_AfterTextChange()
     HealBot_Options_InitSub(102)
@@ -11961,7 +12037,7 @@ function HealBot_Options_InitSub1(subNo)
             HealBot_Options_SetText(HealBot_Options_EnableLibQuickHealth,HEALBOT_OPTIONS_ENABLELIBQH)
             HealBot_Options_EnableAutoCombat:SetChecked(HealBot_Globals.EnAutoCombat)
             HealBot_Options_SetText(HealBot_Options_EnableAutoCombat,HEALBOT_OPTIONS_ENABLEAUTOCOMBAT)
-            HealBot_Options_sliderlabels_Init(HealBot_Options_RangeCheckFreq,HEALBOT_OPTIONS_RANGECHECKFREQ,2.0,8.0,0.5,4,HEALBOT_WORDS_MORECPU,HEALBOT_WORDS_LESSCPU)
+            HealBot_Options_sliderlabels_Init(HealBot_Options_RangeCheckFreq,HEALBOT_OPTIONS_RANGECHECKFREQ,1.0,5.0,0.5,2,HEALBOT_WORDS_MORECPU,HEALBOT_WORDS_LESSCPU)
             HealBot_Options_RangeCheckFreq:SetValue((HealBot_Globals.RangeCheckFreq or 0.5)*10)
             HealBot_Options_RangeCheckFreqText:SetText(HEALBOT_OPTIONS_RANGECHECKFREQ)-- .. ": " .. HealBot_Globals.RangeCheckFreq)
             HealBot_Options_SetText(HealBot_Options_DisableHealBotOpt,HEALBOT_OPTIONS_DISABLEHEALBOT)
@@ -11979,6 +12055,7 @@ function HealBot_Options_InitSub1(subNo)
             HealBot_Options_SetText(HealBot_Options_EFClassWarlock,HEALBOT_WARLOCK)
             HealBot_Options_SetText(HealBot_Options_EFClassWarrior,HEALBOT_WARRIOR)
             HealBot_Options_SetText(HealBot_Options_EFClassDeathKnight,HEALBOT_DEATHKNIGHT)
+            HealBot_Options_SetText(HealBot_Options_EFClassDemonHunter,HEALBOT_DEMONHUNTER)
             HealBot_Options_SetText(HealBot_Options_EFClassMonk,HEALBOT_MONK)
             g=_G["healbotlangfontstr"]
             g:SetText(HEALBOT_OPTIONS_LANG)
@@ -11990,6 +12067,21 @@ function HealBot_Options_InitSub1(subNo)
             g:SetText(HEALBOT_OPTIONS_PROFILE)
             HealBot_Options_hbProfile.initialize = HealBot_Options_hbProfile_DropDown
             UIDropDownMenu_SetText(HealBot_Options_hbProfile, HealBot_Options_hbProfile_List[HealBot_Config.Profile])
+            if HEALBOT_GAME_VERSION<4 then 
+                HealBot_Options_EFClassDeathKnight:Hide()
+                HealBot_Options_EFClassDemonHunter:Hide()
+                HealBot_Options_EFClassMonk:Hide()
+                HealBot_Options_EFClassDruid:ClearAllPoints()
+                HealBot_Options_EFClassDruid:SetPoint("TOPLEFT","HealBot_Options_EmergencyFClass","BOTTOMLEFT",-135,-10)
+                HealBot_Options_EFClassMage:ClearAllPoints()
+                HealBot_Options_EFClassMage:SetPoint("TOPLEFT","HealBot_Options_EFClassHunter","TOPRIGHT",120,0)
+                HealBot_Options_EFClassPaladin:ClearAllPoints()
+                HealBot_Options_EFClassPaladin:SetPoint("TOPLEFT","HealBot_Options_EFClassDruid","BOTTOMLEFT",0,-7)
+                HealBot_Options_EFClassRogue:ClearAllPoints()
+                HealBot_Options_EFClassRogue:SetPoint("TOPLEFT","HealBot_Options_EFClassPriest","TOPRIGHT",120,0)
+                HealBot_Options_EFClassShaman:ClearAllPoints()
+                HealBot_Options_EFClassShaman:SetPoint("TOPLEFT","HealBot_Options_EFClassPaladin","BOTTOMLEFT",0,-7)
+            end
             DoneInitTab[101]=true
         end
     elseif subNo==102 then -- These need to be called before the 300's
@@ -12431,6 +12523,14 @@ function HealBot_Options_InitSub1(subNo)
             g=_G["healbottargetincombatfontstr"]
             g:SetText(HEALBOT_DISABLED_TARGET)
             g:SetTextColor(1,1,1,1)
+            if HEALBOT_GAME_VERSION<4 then 
+                HealBot_Options_FocusInCombat:Hide()
+                HealBot_Options_FocusOnlyFriend:Hide()
+                HealBot_FocusOutOfCombat_Text:Hide()
+                HealBot_Options_FocusExcludeRaid:Hide()
+                HealBot_Options_TargetInCombat:ClearAllPoints()
+                HealBot_Options_TargetInCombat:SetPoint("BOTTOM",0,85)
+            end
             DoneInitTab[302]=true
         end
     elseif subNo==303 then
@@ -12509,7 +12609,6 @@ function HealBot_Options_InitSub1(subNo)
     elseif subNo==306 then
         if not DoneInitTab[306] then
             HealBot_Options_CastNotify_OnClick(nil,Healbot_Config_Skins.Chat[Healbot_Config_Skins.Current_Skin]["NOTIFY"])
-            HealBot_Options_NotifyChan:SetText(Healbot_Config_Skins.Chat[Healbot_Config_Skins.Current_Skin]["CHAN"])
             HealBot_Options_NotifyOtherMsg:SetText(Healbot_Config_Skins.Chat[Healbot_Config_Skins.Current_Skin]["MSG"])   
             HealBot_Options_CastNotifyResOnly:SetChecked(Healbot_Config_Skins.Chat[Healbot_Config_Skins.Current_Skin]["RESONLY"])
             HealBot_Options_SetText(HealBot_Options_CastNotifyResOnly,HEALBOT_OPTIONS_CASTNOTIFYRESONLY)
@@ -12709,7 +12808,7 @@ function HealBot_Options_InitSub1(subNo)
                 g=_G["HealBot_Options_HealGroups"..id]
                 g:SetChecked(Healbot_Config_Skins.HealGroups[Healbot_Config_Skins.Current_Skin][id]["STATE"])
                 local n=id
-                if HEALBOT_GAME_VERSION==1 then 
+                if HEALBOT_GAME_VERSION<4 then 
                     if n>9 then n=n-1 end
                     if n>6 then n=n-1 end
                 end
@@ -12742,7 +12841,7 @@ function HealBot_Options_InitSub1(subNo)
             UIDropDownMenu_SetText(HealBot_Options_HealGroups11Frame, HealBot_Options_HealGroupsFrame_List[Healbot_Config_Skins.HealGroups[Healbot_Config_Skins.Current_Skin][11]["FRAME"]])
             g=_G["HealBot_HealButtonsFrames1_Text"]
             g:SetText(HEALBOT_OPTIONS_FRAME)
-            if HEALBOT_GAME_VERSION==1 then 
+            if HEALBOT_GAME_VERSION<4 then 
                 HealBot_Options_HealGroups7:Hide()
                 HealBot_Options_HealGroups7Frame:Hide()
                 HealBot_Options_HealGroups8:ClearAllPoints()

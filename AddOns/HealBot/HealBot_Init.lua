@@ -20,12 +20,12 @@ function HealBot_Init_retFoundHealSpells()
 end
 
 local cRank=false
-local function HealBot_FindSpellRangeCast(id, spellName, spellBookId)
+local function HealBot_Init_FindSpellRangeCast(id, spellName, spellBookId)
 
     if ( not id ) then return nil; end
 
     local spell, _, _, msCast, _, _ = GetSpellInfo(id);
-    if HEALBOT_GAME_VERSION==1 then 
+    if HEALBOT_GAME_VERSION<4 then 
         cRank = GetSpellSubtext(id)
     end
     if ( not spell ) then return nil; end
@@ -57,7 +57,7 @@ end
 local function HealBot_Init_Spells_addSpell(spellId, spellName, spellBookId)
     local skipSpells={ [HEALBOT_BLESSING_OF_MIGHT]=true}
     if not skipSpells[spellName] then
-        if HealBot_FindSpellRangeCast(spellId, spellName, spellBookId) then
+        if HealBot_Init_FindSpellRangeCast(spellId, spellName, spellBookId) then
             if HealBot_Heal_Names[spellName] and cRank then 
                 HealBot_KnownHeal_Names[spellName]=true
                 spellName=strtrim(spellName).."("..cRank..")"

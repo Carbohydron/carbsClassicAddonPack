@@ -1,6 +1,5 @@
 select(2, ...) 'aux.tabs.search'
 
-local T = require 'T'
 local aux = require 'aux'
 local info = require 'aux.util.info'
 local completion = require 'aux.util.completion'
@@ -10,7 +9,7 @@ local gui = require 'aux.gui'
 local listing = require 'aux.gui.listing'
 local auction_listing = require 'aux.gui.auction_listing'
 
-local FILTER_SPACING = 28.5
+local FILTER_SPACING = 27
 
 frame = CreateFrame('Frame', nil, aux.frame)
 frame:SetAllPoints()
@@ -19,12 +18,21 @@ frame:Hide()
 
 frame.filter = gui.panel(frame)
 frame.filter:SetAllPoints(aux.frame.content)
+frame.filter:SetScript('OnShow', function()
+    initialize_class_selector()
+    initialize_quality_selector()
+end)
 
 frame.results = gui.panel(frame)
 frame.results:SetAllPoints(aux.frame.content)
 
 frame.saved = CreateFrame('Frame', nil, frame)
 frame.saved:SetAllPoints(aux.frame.content)
+frame.saved:SetScript('OnUpdate', function()
+    if not IsAltKeyDown() then
+        dragged_search = nil
+    end
+end)
 
 frame.saved.favorite = gui.panel(frame.saved)
 frame.saved.favorite:SetWidth(393)
@@ -142,7 +150,7 @@ do
     btn:SetPoint('TOPRIGHT', -5, -8)
     btn:SetText('Pause')
     btn:SetScript('OnClick', function()
-        scan.abort(search_scan_id)
+        scan.abort()
     end)
     stop_button = btn
 end
@@ -159,7 +167,6 @@ do
 end
 do
 	local editbox = gui.editbox(frame)
-	editbox:EnableMouse(true)
 	editbox.formatter = function(str)
 		local queries = filter_util.queries(str)
 		return queries and aux.join(aux.map(aux.copy(queries), function(query) return query.prettified end), ';') or aux.color.red(str)
@@ -178,6 +185,16 @@ do
         end
 	end)
 	editbox.enter = execute
+    local function search_cursor_item()
+        local type, item_id = GetCursorInfo()
+        if type == 'item' then
+            set_filter(strlower(info.item(item_id).name) .. '/exact')
+            execute(nil, false)
+            ClearCursor()
+        end
+    end
+    editbox:HookScript('OnReceiveDrag', search_cursor_item)
+    editbox:HookScript('OnMouseDown', search_cursor_item)
 	search_box = editbox
 end
 do
@@ -278,16 +295,14 @@ do
         end
     end
     editbox:SetScript('OnTabPressed', function()
-	    if blizzard_query.exact then
-		    return
-	    end
-        if IsShiftKeyDown() then
-            max_level_input:SetFocus()
-        else
-            min_level_input:SetFocus()
+        if not IsShiftKeyDown() then
+            if blizzard_query.exact then
+                filter_input:SetFocus()
+            else
+                min_level_input:SetFocus()
+            end
         end
     end)
-    editbox.change = update_form
     editbox.enter = function() editbox:ClearFocus() end
     local label = gui.label(editbox, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', editbox, 'TOPLEFT', -2, 1)
@@ -297,7 +312,7 @@ end
 do
     local checkbox = gui.checkbox(frame.filter)
     checkbox:SetPoint('TOPLEFT', name_input, 'TOPRIGHT', 16, 0)
-    checkbox:SetScript('OnClick', update_form)
+    checkbox:SetScript('OnClick', exact_update)
     local label = gui.label(checkbox, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', checkbox, 'TOPLEFT', -2, 1)
     label:SetText('Exact')
@@ -322,7 +337,6 @@ do
 	    if tostring(valid_level) ~= self:GetText() then
             self:SetText(valid_level or '')
 	    end
-	    update_form()
     end
     local label = gui.label(editbox, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', editbox, 'TOPLEFT', -2, 1)
@@ -339,7 +353,7 @@ do
         if IsShiftKeyDown() then
             min_level_input:SetFocus()
         else
-            name_input:SetFocus()
+            class_selector:SetFocus()
         end
     end)
     editbox.enter = function() editbox:ClearFocus() end
@@ -348,7 +362,6 @@ do
 	    if tostring(valid_level) ~= self:GetText() then
             self:SetText(valid_level or '')
 	    end
-	    update_form()
     end
     local label = gui.label(editbox, gui.font_size.medium)
     label:SetPoint('RIGHT', editbox, 'LEFT', -3, 0)
@@ -358,92 +371,101 @@ end
 do
     local checkbox = gui.checkbox(frame.filter)
     checkbox:SetPoint('TOPLEFT', max_level_input, 'TOPRIGHT', 16, 0)
-    checkbox:SetScript('OnClick', update_form)
     local label = gui.label(checkbox, gui.font_size.small)
     label:SetPoint('BOTTOMLEFT', checkbox, 'TOPLEFT', -2, 1)
     label:SetText('Usable')
     usable_checkbox = checkbox
 end
 do
-    local dropdown = gui.dropdown(frame.filter)
-    class_dropdown = dropdown
-    dropdown:SetPoint('TOPLEFT', min_level_input, 'BOTTOMLEFT', 0, 5 - FILTER_SPACING)
-    dropdown:SetWidth(300)
-    local label = gui.label(dropdown, gui.font_size.small)
-    label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
+    local selector = gui.selector(frame.filter)
+    selector.selection_change = function() class_selection_change() end
+    selector:SetPoint('TOPLEFT', min_level_input, 'BOTTOMLEFT', 0, -FILTER_SPACING)
+    selector:SetWidth(300)
+    selector:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            max_level_input:SetFocus()
+        else
+            subclass_selector:SetFocus()
+        end
+    end)
+    local label = gui.label(selector, gui.font_size.small)
+    label:SetPoint('BOTTOMLEFT', selector, 'TOPLEFT', -2, 1)
     label:SetText('Item Class')
-    UIDropDownMenu_Initialize(dropdown, initialize_class_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_class_dropdown)
-    end)
+    class_selector = selector
 end
 do
-    local dropdown = gui.dropdown(frame.filter)
-    subclass_dropdown = dropdown
-    dropdown:SetPoint('TOPLEFT', class_dropdown, 'BOTTOMLEFT', 0, 10 - FILTER_SPACING)
-    dropdown:SetWidth(300)
-    local label = gui.label(dropdown, gui.font_size.small)
-    label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
+    local selector = gui.selector(frame.filter)
+    selector.selection_change = function() subclass_selection_change() end
+    selector:SetPoint('TOPLEFT', class_selector, 'BOTTOMLEFT', 0, -FILTER_SPACING)
+    selector:SetWidth(300)
+    selector:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            class_selector:SetFocus()
+        else
+            slot_selector:SetFocus()
+        end
+    end)
+    local label = gui.label(selector, gui.font_size.small)
+    label:SetPoint('BOTTOMLEFT', selector, 'TOPLEFT', -2, 1)
     label:SetText('Item Subclass')
-    UIDropDownMenu_Initialize(dropdown, initialize_subclass_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_subclass_dropdown)
-    end)
+    subclass_selector = selector
 end
 do
-    local dropdown = gui.dropdown(frame.filter)
-    slot_dropdown = dropdown
-    dropdown:SetPoint('TOPLEFT', subclass_dropdown, 'BOTTOMLEFT', 0, 10 - FILTER_SPACING)
-    dropdown:SetWidth(300)
-    local label = gui.label(dropdown, gui.font_size.small)
-    label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
+    local selector = gui.selector(frame.filter)
+    selector:SetPoint('TOPLEFT', subclass_selector, 'BOTTOMLEFT', 0, -FILTER_SPACING)
+    selector:SetWidth(300)
+    selector:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            subclass_selector:SetFocus()
+        else
+            quality_selector:SetFocus()
+        end
+    end)
+    local label = gui.label(selector, gui.font_size.small)
+    label:SetPoint('BOTTOMLEFT', selector, 'TOPLEFT', -2, 1)
     label:SetText('Item Slot')
-    UIDropDownMenu_Initialize(dropdown, initialize_slot_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_slot_dropdown)
-    end)
+    slot_selector = selector
 end
 do
-    local dropdown = gui.dropdown(frame.filter)
-    quality_dropdown = dropdown
-    dropdown:SetPoint('TOPLEFT', slot_dropdown, 'BOTTOMLEFT', 0, 10 - FILTER_SPACING)
-    dropdown:SetWidth(300)
-    local label = gui.label(dropdown, gui.font_size.small)
-    label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
-    label:SetText('Min Quality')
-    UIDropDownMenu_Initialize(dropdown, initialize_quality_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_quality_dropdown)
+    local selector = gui.selector(frame.filter)
+    selector:SetPoint('TOPLEFT', slot_selector, 'BOTTOMLEFT', 0, -FILTER_SPACING)
+    selector:SetWidth(300)
+    selector:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            slot_selector:SetFocus()
+        else
+            filter_input:SetFocus()
+        end
     end)
+    local label = gui.label(selector, gui.font_size.small)
+    label:SetPoint('BOTTOMLEFT', selector, 'TOPLEFT', -2, 1)
+    label:SetText('Min Quality')
+    quality_selector = selector
 end
 gui.vertical_line(frame.filter, 332)
 do
-    local dropdown = gui.dropdown(frame.filter)
-    dropdown:SetPoint('TOPRIGHT', -174.5, -10)
-    dropdown:SetWidth(150)
-    UIDropDownMenu_Initialize(dropdown, initialize_filter_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_filter_dropdown)
-    end)
-    _G[dropdown:GetName() .. 'Text']:Hide()
-    local label = gui.label(dropdown, gui.font_size.medium)
-    label:SetPoint('RIGHT', dropdown, 'LEFT', -15, 0)
-    label:SetText('Component')
-    filter_dropdown = dropdown
-end
-do
 	local input = gui.editbox(frame.filter)
-	input:SetPoint('CENTER', filter_dropdown, 'CENTER', 0, 0)
+    input:SetPoint('TOPRIGHT', -174.5, -10)
 	input:SetWidth(150)
-	input:SetScript('OnTabPressed', function() filter_parameter_input:SetFocus() end)
-	input.complete = completion.complete(function() return T.temp-T.list('and', 'or', 'not', unpack(aux.keys(filter_util.filters))) end)
+    input:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            if blizzard_query.exact then
+                name_input:SetFocus()
+            else
+                quality_selector:SetFocus()
+            end
+        else
+            filter_parameter_input:SetFocus()
+        end
+    end)
+    input.complete = completion.complete(function() return {'and', 'or', 'not', unpack(aux.keys(filter_util.filters))} end)
 	input.char = function(self) self:complete() end
 	input.change = function(self)
 		local text = self:GetText()
 		if filter_util.filters[text] and filter_util.filters[text].input_type ~= '' then
 			local _, _, suggestions = filter_util.parse_filter_string(text .. '/')
 			filter_parameter_input:SetNumeric(filter_util.filters[text].input_type == 'number')
-			filter_parameter_input.complete = completion.complete(function() return suggestions or T.empty end)
+			filter_parameter_input.complete = completion.complete(function() return suggestions or empty end)
 			filter_parameter_input:Show()
 		else
 			filter_parameter_input:Hide()
@@ -455,15 +477,20 @@ do
 		else
 			add_form_component()
 		end
-	end
+    end
+    local label = gui.label(input, gui.font_size.medium)
+    label:SetPoint('RIGHT', input, 'LEFT', -15, 0)
+    label:SetText('Component')
 	filter_input = input
 end
 do
     local input = gui.editbox(frame.filter)
-    input:SetPoint('LEFT', filter_dropdown, 'RIGHT', 10, 0)
+    input:SetPoint('LEFT', filter_input, 'RIGHT', 10, 0)
     input:SetWidth(150)
     input:SetScript('OnTabPressed', function()
-	    filter_input:SetFocus()
+        if IsShiftKeyDown() then
+            filter_input:SetFocus()
+        end
     end)
     input.char = function(self) self:complete() end
     input.enter = add_form_component
@@ -532,7 +559,6 @@ for _ = 1, 5 do
 			    end
 		    end
 	    elseif button == 'RightButton' then
-	        aux.set_tab(1)
 		    set_filter(strlower(info.item(row.record.item_id).name) .. '/exact')
 		    execute(nil, false)
 	    end
@@ -553,7 +579,7 @@ favorite_searches_listing:SetColInfo{{name='Alert', width=.07, align='CENTER'}, 
 recent_searches_listing = listing.new(frame.saved.recent)
 recent_searches_listing:SetColInfo{{name='Recent Searches', width=1}}
 
-for listing in pairs(T.temp-T.set(favorite_searches_listing, recent_searches_listing)) do
+for listing in aux.iter(favorite_searches_listing, recent_searches_listing) do
 	for k, v in pairs(handlers) do
 		listing:SetHandler(k, v)
 	end

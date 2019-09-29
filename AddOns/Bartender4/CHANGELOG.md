@@ -1,10 +1,10 @@
 # Bartender4
 
-## [4.8.7](https://github.com/Nevcairiel/Bartender4/tree/4.8.7) (2019-09-08)
-[Full Changelog](https://github.com/Nevcairiel/Bartender4/compare/4.8.6...4.8.7)
+## [4.8.8](https://github.com/Nevcairiel/Bartender4/tree/4.8.8) (2019-09-25)
+[Full Changelog](https://github.com/Nevcairiel/Bartender4/compare/4.8.7...4.8.8)
 
-- Only allow the OverrideActionBar to take over the MicroMenu when Blizzard Vehicle is enabled  
-- Be explicit about which frames we allow to take over the MicroMenu  
-- Remove more hooks that should not be needed  
-- Simplify the VehicleBar, it only ever has one button  
-- Don't skin the MicroMenu with Masque, its not compatible  
+- Update TOC for 8.2.5  
+- Also re-layout the MicroMenu after taking it back over  
+- Add a few additional hooks to restore the MicroMenu to its original state  
+    Hopefully this can reduce the impact of other addons also messing with  
+    the MainMenuBar  

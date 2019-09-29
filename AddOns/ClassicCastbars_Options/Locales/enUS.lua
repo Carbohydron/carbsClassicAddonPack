@@ -26,6 +26,8 @@ L["CASTBAR_TEXTURE_FONT"] = "Castbar Textures"
 L["DEFAULT"] = "Default"
 L["FONT_SIZE"] = "Font Size"
 L["FONT_SIZE_TOOLTIP"] = "Sets font size used for spell name and timer text."
+L["FRAME_LEVEL"] = "Frame Level"
+L["FRAME_LEVEL_DESC"] = "Change frame level to layer the castbar below or above another frame."
 L["GENERAL"] = "General Settings"
 L["HEIGHT"] = "Castbar Height"
 L["HEIGHT_TOOLTIP"] = "Sets the castbar height."
@@ -37,6 +39,11 @@ L["ICON_SIZE_TOOLTIP"] = "Sets the size for the castbar spell icon."
 L["LSM_TEXTURE_NOTE"] = [=[
 
 Note: If you use a custom third-party texture/font and delete it later on from your PC, you'll need to manually reset the texture or font here for the addon to continue working.]=]
+L["MOVEMENT_DETECT"] = "Stop Castbar on Movement"
+L["MOVEMENT_DETECT_TOOLTIP"] = [=[Enable this to stop the castbar when the unit is moving their character.
+
+You might want to disable this if you play with high latency as it can sometimes incorrectly stop the castbar for laggy players.
+]=]
 L["NAMEPLATE"] = "Nameplate"
 L["POSXY_TOOLTIP"] = "Adjust the XY offset values to move the frame."
 L["PUSHBACK"] = "Detect Cast Pushbacks"
@@ -51,6 +58,7 @@ L["SHOW_CAST_INFO_ONLY_TOOLTIP"] = [=[Enable to hide cast timers, but still show
 You can also set the castbar height to zero and border to none if you want to only show the spell name instead of the whole bar.]=]
 L["SHOW_TIMER"] = "Show Timer Text"
 L["SHOW_TIMER_TOOLTIP"] = "Display a timer countdown for the current cast."
+L["STATUS_BG_COLOR"] = "Select Background Color"
 L["STATUS_CHANNEL_COLOR"] = "Select Channel Fill Color"
 L["STATUS_COLOR"] = "Select Cast Fill Color"
 L["TARGET"] = "Target"

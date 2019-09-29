@@ -88,9 +88,11 @@ end
 function TextInfo:UpdateXPPHInfoText()
   local trackingInfo = XPTracker.db.char.TrackingInfo
   local displayTime = TextInfo:DisplayElapsedTime(trackingInfo.TimeElapsed)
-  XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. displayTime)
-  TextInfo:DisplayLevelAtRateText()
-  XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. trackingInfo.XPRecorded)
+  if XPTracker.TimeElapsedText and XPTracker.XPRecordedText and XPTracker.LevelAtRateText then
+    XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. displayTime)
+    TextInfo:DisplayLevelAtRateText()
+    XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. trackingInfo.XPRecorded)
+  end
 end
 
 function TextInfo:DisplayLevelAtRateText()

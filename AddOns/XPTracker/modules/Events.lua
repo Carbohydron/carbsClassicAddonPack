@@ -21,7 +21,7 @@ function Events:PLAYER_ENTERING_WORLD()
 end
 
 function Events:PLAYER_LEAVING_WORLD()
-  XPTracker:CleanupOnExit()
+  --XPTracker:CleanupTracking()
 end
 
 function Events:PLAYER_UPDATE_RESTING()

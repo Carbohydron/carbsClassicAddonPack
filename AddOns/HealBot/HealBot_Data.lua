@@ -235,6 +235,7 @@ HealBot_GlobalsDefaults = {}
 
 function HealBot_Data_InitVars()
     HealBot_GlobalsDefaults = {
+        DebugOut=false,
         Debug01=false, -- Currently not used
         VersionResetDone={},
         CatchAltDebuffIDs={["init"]=true},
@@ -265,7 +266,7 @@ function HealBot_Data_InitVars()
         SmartCastBuff = true,
         SmartCastHeal = false,
         SmartCastRes = true,
-        RangeCheckFreq=0.4,
+        RangeCheckFreq=0.2,
         HealBot_ButtonRadius=78,
         HealBot_ButtonPosition=300,
         MinimapIcon={hide = false, minimapPos = 220, radius = 80,},
@@ -307,6 +308,9 @@ function HealBot_Data_InitVars()
                        [9]={R = 1, G = 1, B = 1, A = 1 },
                        [10]={R = 0.7, G = 0.7, B = 0.7, A = 1 },},
         HealBot_customPermUserName={},
+        HealBot_PermMyTargets={},
+        HealBot_PermPrivateTanks={},
+        HealBot_PermPrivateHealers={},
         HealBot_MouseWheelIndex={ ["AltUp"]=2, ["AltDown"]=3 },
         HealBot_MouseWheelTxt={ ["AltUp"]=HEALBOT_BLIZZARD_MENU, ["AltDown"]=HEALBOT_HB_MENU },
         HealBot_Emotes={ ["NoneUp"]=HEALBOT_EMOTE_HELLO,  ["NoneDown"]=HEALBOT_EMOTE_HELLO,
@@ -401,6 +405,9 @@ function HealBot_Data_InitVars()
             ["MAGE"] = {
                 [HEALBOT_EVOCATION]=2,
                 [HEALBOT_ICE_BARRIER]=4,
+                [HBC_DAMPEN_MAGIC]=4,
+                [HBC_FROST_ARMOR]=4,
+                [HBC_MAGE_ARMOR]=4,
                 [HEALBOT_INCANTERS_WARD]=2,
                 [HEALBOT_ICE_BLOCK]=4,
                 [HEALBOT_BLAZING_BARRIER]=4,
@@ -419,6 +426,7 @@ function HealBot_Data_InitVars()
                 [HEALBOT_DIVINE_PURPOSE]=2,
                 [HEALBOT_ARDENT_DEFENDER]=2,
                 [HEALBOT_DIVINE_PROTECTION]=4,
+                [HBC_DIVINE_INTERVENTION]=4,
                 [HEALBOT_BEACON_OF_FAITH]=2,                                
                 [HEALBOT_BLESSING_OF_SACRIFICE]=2,
                 [HEALBOT_BESTOW_FAITH]=2,
@@ -567,10 +575,10 @@ HealBot_Config_SkinsDefaults = {
   Skins = {HEALBOT_SKINS_STD, HEALBOT_OPTIONS_GROUPHEALS, HEALBOT_OPTIONS_RAID25, HEALBOT_OPTIONS_RAID40},
   Author = {[HEALBOT_SKINS_STD] = defaultAuthor, [HEALBOT_OPTIONS_GROUPHEALS] = defaultAuthor, 
               [HEALBOT_OPTIONS_RAID25] = defaultAuthor, [HEALBOT_OPTIONS_RAID40] = defaultAuthor,},
-  Chat =    {[HEALBOT_SKINS_STD]          = {["NOTIFY"]=1,["CHAN"]="",["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
-             [HEALBOT_OPTIONS_GROUPHEALS] = {["NOTIFY"]=1,["CHAN"]="",["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
-             [HEALBOT_OPTIONS_RAID25]     = {["NOTIFY"]=1,["CHAN"]="",["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
-             [HEALBOT_OPTIONS_RAID40]     = {["NOTIFY"]=1,["CHAN"]="",["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},},
+  Chat =    {[HEALBOT_SKINS_STD]          = {["NOTIFY"]=1,["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
+             [HEALBOT_OPTIONS_GROUPHEALS] = {["NOTIFY"]=1,["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
+             [HEALBOT_OPTIONS_RAID25]     = {["NOTIFY"]=1,["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},
+             [HEALBOT_OPTIONS_RAID40]     = {["NOTIFY"]=1,["MSG"]=HEALBOT_NOTIFYOTHERMSG,["RESONLY"]=true,["EOCOOM"]=false,["EOCOOMV"]=20},},
   General = {[HEALBOT_SKINS_STD]          = {["HIDEPARTYF"]=false,["HIDEPTF"]=false,["HIDEBOSSF"]=false,["HIDERAIDF"]=true,
                                              ["FLUIDBARS"]=false,["FLUIDFREQ"]=3,["STICKYFRAME"]=true,["STICKYSENSITIVITY"]=20},
              [HEALBOT_OPTIONS_GROUPHEALS] = {["HIDEPARTYF"]=false,["HIDEPTF"]=false,["HIDEBOSSF"]=false,["HIDERAIDF"]=true,
@@ -2297,8 +2305,6 @@ HealBot_Data={  ["TIPUNIT"] = false,
 };
 
 HealBot_FrameVisible = {[1]=false,[2]=false,[3]=false,[4]=false,[5]=false,[6]=false,[7]=false,[8]=false,[9]=false,[10]=false}
-HealBot_UnitData={};
-HealBot_UnitGUID={};
 HealBot_Spell_IDs = {};
 HealBot_Spell_Names = {};
 HealBot_Unit_Button={};

@@ -28,3 +28,4 @@ XPTracker.lua
 modules\Widgets.lua
 modules\Events.lua
 modules\TextInfo.lua
+modules\ConfigMenu.lua

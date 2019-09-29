@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("XPTracker")
 
 local Widgets = XPTracker:GetModule("Widgets")
 local TextInfo = XPTracker:GetModule("TextInfo")
+local ConfigMenu = XPTracker:GetModule("ConfigMenu")
 
 function Widgets:CreateMainWindow()
   XPTracker.MainWindow = CreateFrame("Frame", nil, UIParent)
@@ -13,9 +14,8 @@ function Widgets:CreateMainWindow()
 end
 
 function Widgets:ConfigureMainWindow(window, windowPosition)
-  window:SetMovable(true)
+  ConfigMenu:HandleMainWindowMovement()
   window:EnableMouse(true)
-  window:RegisterForDrag("LeftButton")
   window:SetWidth(200)
   window:SetHeight(windowPosition.height)
   window:SetClampedToScreen(true)

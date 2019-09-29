@@ -5,6 +5,7 @@ local db
 local Widgets = XPTracker:NewModule("Widgets", "AceEvent-3.0")
 local Events = XPTracker:NewModule("Events", "AceEvent-3.0")
 local TextInfo = XPTracker:NewModule("TextInfo", "AceEvent-3.0")
+local ConfigMenu = XPTracker:NewModule("ConfigMenu", "AceEvent-3.0")
 
 local defaults = {
   profile = {
@@ -17,6 +18,7 @@ local defaults = {
       },
       ShowingBasicInfo = true,
       ShowingXPPHInfo = true,
+      IsLocked = false,
     },
   },
   char = {
@@ -52,10 +54,12 @@ function XPTracker:OnEnable()
   XPTracker:UpdateXPData()
   --Widgets:CreateReloadButton() -- for quick reload testing only
   Widgets:CreateMainWindow()
+  ConfigMenu:RegisterConfigMenu()
+  XPTracker:CleanupTracking()
 end
 
 function XPTracker:OnDisable()
-  XPTracker:CleanupOnExit()
+  XPTracker:CleanupTracking()
 end
 
 function XPTracker:RegisterEvents()
@@ -97,14 +101,33 @@ function XPTracker:RefreshXPPH()
   local trackingInfo = db.char.TrackingInfo
   trackingInfo.TimeElapsed = trackingInfo.TimeElapsed + 1
   local timeElapsed = trackingInfo.TimeElapsed
-  local hourMultiple = math.floor(timeElapsed / 3600) + 1
   local XPRecorded = trackingInfo.XPRecorded
-  local multiplier = (3600 * hourMultiple) / timeElapsed
   TextInfo:UpdateXPPHInfoText()
   if timeElapsed % 10 == 0 then -- Only update XPPH every 10 seconds
-    trackingInfo.CurrentXPPH = math.floor(multiplier * XPRecorded)
-    XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. trackingInfo.CurrentXPPH)
+    trackingInfo.CurrentXPPH = XPTracker:GetXPPH(timeElapsed, XPRecorded)
+    if XPTracker.XPPHText then
+      XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. trackingInfo.CurrentXPPH)
+    end
   end
+end
+
+function XPTracker:GetXPPH(timeElapsed, XPRecorded)
+  if timeElapsed < 3600 then
+    return XPTracker:GetXPPHUnderOneHour(timeElapsed, XPRecorded)
+  else
+    return XPTracker:GetXPPHOverOneHour(timeElapsed, XPRecorded)
+  end
+end
+
+function XPTracker:GetXPPHUnderOneHour(timeElapsed, XPRecorded)
+  local hourMultiple = math.floor(timeElapsed / 3600) + 1
+  local multiplier = (3600 * hourMultiple) / timeElapsed
+  return math.floor(multiplier * XPRecorded)
+end
+
+function XPTracker:GetXPPHOverOneHour(timeElapsed, XPRecorded)
+  local hours = math.floor(((timeElapsed / 60) / 60) * 100) / 100
+  return math.floor(XPRecorded / hours)
 end
 
 function XPTracker:InitiateTracking()
@@ -113,8 +136,10 @@ function XPTracker:InitiateTracking()
   local trackingInfo = db.char.TrackingInfo
   if tracking then trackingInfo.ZoneStartedAt = GetZoneText() end
   trackingInfo.StartTime = TextInfo:GetDateTime()
-  XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. trackingInfo.ZoneStartedAt)
-  XPTracker.StartTimeText:SetText(L["Start Time: "] .. trackingInfo.StartTime)
+  if XPTracker.ZoneStartedAtText then
+    XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. trackingInfo.ZoneStartedAt)
+    XPTracker.StartTimeText:SetText(L["Start Time: "] .. trackingInfo.StartTime)
+  end
 end
 
 function XPTracker:EndTracking()
@@ -137,20 +162,22 @@ end
 
 function XPTracker:ResetTrackingData()
   local trackingInfo = db.char.TrackingInfo
-  XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. 0)
-  XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. L['0 seconds'])
-  XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. 0)
-  XPTracker.StartTimeText:SetText(L["Start Time: "] .. "...")
-  XPTracker.EndTimeText:SetText(L["End Time: "] .. "...")
-  XPTracker.LevelAtRateText:SetText(L["Time to Level: "] .. "...")
-  XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. "...")
-  trackingInfo.CurrentXPPH = 0
-  trackingInfo.TimeElapsed = 0
-  trackingInfo.XPRecorded = 0
-  trackingInfo.ZoneStartedAt = '...'
-  trackingInfo.StartTime = '...'
-  trackingInfo.EndTime = '...'
-  trackingInfo.TimeToLevelAtRate = '...'
+  if XPTracker.XPPHText then
+    XPTracker.XPPHText:SetText(L["XP Per Hour: "] .. 0)
+    XPTracker.TimeElapsedText:SetText(L["Time Elapsed: "] .. L['0 seconds'])
+    XPTracker.XPRecordedText:SetText(L["XP Recorded: "] .. 0)
+    XPTracker.StartTimeText:SetText(L["Start Time: "] .. "...")
+    XPTracker.EndTimeText:SetText(L["End Time: "] .. "...")
+    XPTracker.LevelAtRateText:SetText(L["Time to Level: "] .. "...")
+    XPTracker.ZoneStartedAtText:SetText(L["Initial Zone: "] .. "...")
+    trackingInfo.CurrentXPPH = 0
+    trackingInfo.TimeElapsed = 0
+    trackingInfo.XPRecorded = 0
+    trackingInfo.ZoneStartedAt = '...'
+    trackingInfo.StartTime = '...'
+    trackingInfo.EndTime = '...'
+    trackingInfo.TimeToLevelAtRate = '...'
+  end
 end
 
 
@@ -169,7 +196,9 @@ function XPTracker:HandleLevelChange(playerLevel)
   if levelChanged and tracking then
     XPTracker:CancelTimer(XPTracker.Tracker)
     XPTracker.Tracker = XPTracker:ScheduleRepeatingTimer("RefreshXPPH", 1)
-    XPTracker:InitiateTracking()
+    if XPTracker.StartTimeText then -- InitiateTracking makes text changes - make sure text exists
+      XPTracker:InitiateTracking()
+    end
     dbInfo.XPRecorded = 0
     dbInfo.LastEventXP = 0
   elseif levelChanged then
@@ -289,7 +318,7 @@ function XPTracker:UpdateTextPositionOnEnable()
   if not showingBasicInfo then XPTracker:HideBasicInfo(XPTracker.ToggleBasicInfoButton.texture) end
 end
 
-function XPTracker:CleanupOnExit()
+function XPTracker:CleanupTracking()
   XPTracker:CancelTimer(XPTracker.Tracker)
   if db.char.TrackingXP then XPTracker:EndTracking() end
   db.char.TrackingXP = false
@@ -316,11 +345,14 @@ end
 -- 1) Maybe add button to print out tracking data to chat window - do this for basic and XPPH separately
 -- 2) Add actual languages for localization
 -- 3) General cleanup - upvalues etc
--- 4) Add a lock button for locking the window in place
+-- 4) Show turn-in XP for quests on quest log
+-- 5) Show total amount of XP from current quests
+-- 6) Add config option to set how often you want the tracking timer to update
+-- 7) Add config option to set whether the tracker should auto reset when entering dungeon
+-- 8) Add more screenshots
 
 -- BUGS
 -- seems to reset to half size when you log out with both sections open - sometimes
 
 -- Maybe:
--- 1) Add Horizontal Rule under basic info text
--- 2) Use symbols for pause and play instead of words?
+-- 1) Use symbols for pause and play instead of words?

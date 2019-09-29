@@ -78,7 +78,7 @@ bid_listing:SetColInfo{
     {name='Auctions', width=.17, align='CENTER'},
     {name='Time\nLeft', width=.11, align='CENTER'},
     {name='Stack\nSize', width=.11, align='CENTER'},
-    {name='Auction Bid\n(per item)', width=.4, align='RIGHT'},
+    {name='Auction Bid\n(per stack)', width=.4, align='RIGHT'},
     {name='% Hist.\nValue', width=.21, align='CENTER'},
 }
 bid_listing:SetSelection(function(data)
@@ -154,6 +154,17 @@ do
     item.button:SetScript('OnLeave', function()
         GameTooltip:Hide()
     end)
+    local function select_cursor_item()
+        local type, item_id, item_link = GetCursorInfo()
+        if type == 'item' then
+            local _, suffix_id = info.parse_link(item_link)
+            select_item(item_id .. ':' .. suffix_id)
+            ClearCursor()
+        end
+    end
+    item.button:HookScript('OnReceiveDrag', select_cursor_item)
+    item.button:HookScript('OnMouseDown', select_cursor_item)
+    item.button:HookScript('OnClick', select_cursor_item)
 end
 do
     local slider = gui.slider(frame.parameters)
@@ -168,29 +179,34 @@ do
         prepare_stack()
     end
     slider.editbox:SetScript('OnTabPressed', function()
-        if IsShiftKeyDown() then
-            unit_buyout_price_input:SetFocus()
-        else
-            unit_start_price_input:SetFocus()
+        if not IsShiftKeyDown() then
+            duration_selector:SetFocus()
         end
     end)
     slider.editbox:SetNumeric(true)
     slider.editbox:SetMaxLetters(3)
+    slider.editbox.reset_text = '1'
     slider.label:SetText('Stack Size')
     stack_size_slider = slider
 end
 do
-    local dropdown = gui.dropdown(frame.parameters)
-    dropdown:SetPoint('TOPLEFT', stack_size_slider, 'BOTTOMLEFT', 0, -22)
-    dropdown:SetWidth(90)
-    local label = gui.label(dropdown, gui.font_size.small)
-    label:SetPoint('BOTTOMLEFT', dropdown, 'TOPLEFT', -2, -3)
-    label:SetText('Duration')
-    UIDropDownMenu_Initialize(dropdown, initialize_duration_dropdown)
-    dropdown:SetScript('OnShow', function(self)
-        UIDropDownMenu_Initialize(self, initialize_duration_dropdown)
+    local selector = gui.selector(frame.parameters)
+    selector.selection_change = function() duration_selection_change() end
+    selector:SetPoint('TOPLEFT', stack_size_slider, 'BOTTOMLEFT', 0, -25)
+    selector:SetWidth(90)
+    selector:SetHeight(22)
+    selector:SetFontSize(17)
+    selector:SetScript('OnTabPressed', function()
+        if IsShiftKeyDown() then
+            stack_size_slider:SetFocus()
+        else
+            unit_start_price_input:SetFocus()
+        end
     end)
-    duration_dropdown = dropdown
+    local label = gui.label(selector, gui.font_size.small)
+    label:SetPoint('BOTTOMLEFT', selector, 'TOPLEFT', -2, 1)
+    label:SetText('Duration')
+    duration_selector = selector
 end
 do
     local checkbox = gui.checkbox(frame.parameters)
@@ -228,7 +244,7 @@ do
         if is_user_input then
             set_bid_selection()
             set_buyout_selection()
-            set_unit_start_price(money.from_string(self:GetText()))
+            set_unit_start_price(money.from_string(self:GetText()) or 0)
         end
     end
     editbox.enter = function(self)
@@ -272,7 +288,7 @@ do
         refresh = true
         if is_user_input then
             set_buyout_selection()
-            set_unit_buyout_price(money.from_string(self:GetText()))
+            set_unit_buyout_price(money.from_string(self:GetText()) or 0)
         end
     end
     editbox.enter = function(self)

@@ -1,9 +1,9 @@
 ## Interface: 11302
 ## X-Min-Interface: 80200
-## Title: GatherLite |cFF00FF00 1.2.13-classic|r
+## Title: GatherLite
 ## Author: Wuild
-## Version: 1.2.13-classic
-## OptionalDeps: Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0, HereBeDragons
+## Version: 1.3.2-classic
+## OptionalDeps: GatherLite_Data, Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0, HereBeDragons, MBB
 ## Notes: GatherLite remembers where you found stuff
 ## SavedVariables: GatherLiteGlobalSettings GatherLiteConfig
 ## SavedVariablesPerCharacter: GatherLiteConfigCharacter

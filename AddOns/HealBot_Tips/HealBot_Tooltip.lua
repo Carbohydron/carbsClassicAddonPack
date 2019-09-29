@@ -483,7 +483,7 @@ local function HealBot_Action_DoRefreshTooltip()
     if HealBot_Globals.ShowTooltip==false then return end
     if HealBot_Globals.DisableToolTipInCombat and HealBot_Data["UILOCK"] then return end
     xUnit=HealBot_Data["TIPUNIT"]
-    xGUID=HealBot_UnitGUID(xUnit)
+    xGUID=UnitGUID(xUnit)
     xButton=HealBot_Unit_Button[xUnit] or HealBot_Enemy_Button[xUnit] or HealBot_Pet_Button[xUnit]
     if not xGUID or not xButton then return end
     local uName=HealBot_GetUnitName(xUnit, xGUID)
@@ -571,25 +571,13 @@ local function HealBot_Action_DoRefreshTooltip()
                 uLvl=""
             end
             if UnitClass(xUnit) and UnitIsPlayer(xUnit) then
-                local unitSpec = " "
                 local inRange=true
-                if HEALBOT_GAME_VERSION==1 then inRange=CheckInteractDistance(xUnit,1) end
-                if HealBot_UnitData[xGUID] then
-                    if inRange and HealBot_Globals.QueryTalents and not HealBot_Data["INSPECT"] and HealBot_UnitData[xGUID]["SPEC"]==" " then
-                        HealBot_Data["INSPECT"]=true
-                        HealBot_TalentQuery(xUnit)
-                    end
-                    unitSpec=HealBot_UnitData[xGUID]["SPEC"]
-                elseif xUnit=="target" then
-                    unitSpec=HealBot_retLuVars("targetSpec")
-                    if inRange and HealBot_Globals.QueryTalents and not HealBot_Data["INSPECT"] and unitSpec==" " then
-                        HealBot_Data["INSPECT"]=true
-                        HealBot_TalentQuery(xUnit)
-                    end
-                elseif HealBot_Unit_Button[xUnit] then
-                    HealBot_Action_SetUnitData(xGUID, xUnit)
+                if HEALBOT_GAME_VERSION<4 then inRange=CheckInteractDistance(xUnit,1) end
+                if xButton.spec==" " and inRange and HealBot_Globals.QueryTalents and not HealBot_Data["INSPECT"] then
+                    HealBot_Data["INSPECT"]=true
+                    HealBot_TalentQuery(xUnit)
                 end
-                HealBot_Tooltip_SetLine(linenum,uName,r,g,b,1,uLvl.." "..unitSpec..UnitClass(xUnit),r,g,b,1)                
+                HealBot_Tooltip_SetLine(linenum,uName,r,g,b,1,uLvl.." "..xButton.spec..UnitClass(xUnit),r,g,b,1)                
             else
                 HealBot_Tooltip_SetLine(linenum,uName,r,g,b,1,uLvl,r,g,b,1)      
             end      
@@ -712,7 +700,7 @@ local function HealBot_Action_DoRefreshTooltip()
             local d=false
             if HealBot_Globals.Tooltip_ShowMyBuffs then
                 for x,_ in pairs(HealBot_CheckBuffs) do
-                    local z=HealBot_RetMyBuffTime(xGUID,x)
+                    local z=HealBot_RetMyBuffTime(xButton,x)
                     if z then
                         d=true
                         z=z-GetTime()
@@ -878,11 +866,7 @@ local function HealBot_Action_DoRefreshTargetTooltip(button)
     local r,g,b=HealBot_Action_ClassColour(button.unit)
 
     if UnitClass(button.unit) then
-        local unitSpec=" "
-        if HealBot_UnitData[button.guid] then
-            unitSpec = HealBot_UnitData[button.guid]["SPEC"] or " "
-        end
-        HealBot_Tooltip_SetLine(linenum,HealBot_GetUnitName(button.unit, button.guid),r,g,b,1,"Level "..UnitLevel(button.unit)..unitSpec..UnitClass(button.unit),r,g,b,1)    
+        HealBot_Tooltip_SetLine(linenum,HealBot_GetUnitName(button.unit, button.guid),r,g,b,1,"Level "..UnitLevel(button.unit)..button.spec..UnitClass(button.unit),r,g,b,1)    
     else
         HealBot_Tooltip_SetLine(linenum,HealBot_GetUnitName(button.unit, button.guid),r,g,b,1,rText,rR,rG,rB,ra)
     end
@@ -895,9 +879,9 @@ local function HealBot_Action_DoRefreshTargetTooltip(button)
     linenum=linenum+1
     HealBot_Tooltip_SetLineLeft(" "..HEALBOT_OPTIONS_BUTTONRIGHT..":",1,1,0.2,linenum,1)
     if HealBot_Panel_RetMyHealTarget(button.guid) then
-        HealBot_Tooltip_SetLine(linenum," "..HEALBOT_OPTIONS_BUTTONRIGHT..":",1,1,0.2,1,HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_TARGETHEALS.." ",1,1,1,1)
+        HealBot_Tooltip_SetLine(linenum," "..HEALBOT_OPTIONS_BUTTONRIGHT..":",1,1,0.2,1,HEALBOT_WORDS_REMOVEFROM.." "..HEALBOT_OPTIONS_MYTARGET.." ",1,1,1,1)
     else
-        HealBot_Tooltip_SetLine(linenum," "..HEALBOT_OPTIONS_BUTTONRIGHT..":",1,1,0.2,1,HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_TARGETHEALS.." ",1,1,1,1)
+        HealBot_Tooltip_SetLine(linenum," "..HEALBOT_OPTIONS_BUTTONRIGHT..":",1,1,0.2,1,HEALBOT_WORDS_ADDTO.." "..HEALBOT_OPTIONS_MYTARGET.." ",1,1,1,1)
     end
     HealBot_Tooltip_Show()
 end
